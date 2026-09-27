@@ -1,0 +1,2169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>Spark Gauntlet</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:#000;color:#fff;font-family:"Press Start 2P","Courier New",monospace;overflow:hidden;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent;-webkit-text-size-adjust:100%}
+#app{position:fixed;top:0;left:0;right:0;bottom:0;display:flex;flex-direction:column}
+#stage{flex:1;display:flex;align-items:center;justify-content:center;position:relative;touch-action:none;min-height:0;overflow:hidden}
+#cv{image-rendering:pixelated;image-rendering:crisp-edges;display:block;background:#000}
+#topbtns{position:absolute;top:8px;right:8px;display:flex;gap:6px;z-index:5}
+.tbtn{font:inherit;font-size:9px;background:rgba(0,0,0,.6);color:#aaa;border:2px solid #555;padding:8px 9px;cursor:pointer;touch-action:manipulation}
+.tbtn:hover{color:#ffe14a;border-color:#ffe14a}
+.plat-phone #btnFull{display:none}
+#touch{display:none;flex:none;height:170px;padding:10px 14px;padding-bottom:calc(10px + env(safe-area-inset-bottom));gap:12px;touch-action:none;background:#060606;border-top:3px solid #222;align-items:center;justify-content:space-between}
+body.fighting.plat-phone #touch,.plat-phone body.fighting #touch{display:flex}
+.tcol{display:flex;flex-direction:column;gap:10px;flex:1;max-width:48%}
+.tb{font:inherit;background:#000;color:#fff;border:3px solid #fff;touch-action:none;-webkit-user-select:none;user-select:none;border-radius:10px}
+.tb.small{height:62px;font-size:11px}
+#tSpell{color:#c07aff;border-color:#c07aff}
+#tSpecial{color:#777;border-color:#444}
+#tSpecial.ready{color:#ffe14a;border-color:#ffe14a;animation:pulse .6s infinite alternate}
+#tFire{width:132px;height:132px;border-radius:50%;font-size:13px;color:#4ad8ff;border-color:#4ad8ff}
+#tFire.guard{color:#6aff8a;border-color:#6aff8a}
+#tFire.down{background:#221400}
+@keyframes pulse{from{transform:scale(1)}to{transform:scale(1.04)}}
+#ui{position:fixed;top:0;left:0;right:0;bottom:0;overflow-y:auto;-webkit-overflow-scrolling:touch;background:rgba(0,0,0,.8);display:none;padding:22px 16px 44px;touch-action:pan-y;z-index:10}
+#ui.show{display:block}
+.panel{max-width:780px;margin:0 auto;text-align:center}
+h1.logo{font-size:38px;line-height:1.3;color:#fff;text-shadow:4px 4px 0 #1a7cff;margin:14px 0 6px;cursor:pointer;letter-spacing:2px}
+h2{font-size:18px;margin:8px 0 14px;color:#ffe14a;line-height:1.5}
+h3{font-size:11px;margin:18px 0 8px;color:#ff9a3a;line-height:1.6}
+p,li{font-size:10px;line-height:1.9}
+.sub{color:#aaa;margin-bottom:14px}
+.muted{color:#888}
+.y{color:#ffe14a}.r{color:#ff4a5a}.g{color:#6aff8a}.b{color:#6ad8ff}.p{color:#c07aff}.o{color:#ff9a3a}
+.btn{font:inherit;font-size:11px;background:#000;color:#4ad8ff;border:3px solid #4ad8ff;padding:11px 14px;margin:5px;cursor:pointer;min-height:44px;touch-action:manipulation;line-height:1.4}
+.btn:hover,.btn:focus-visible{color:#ffe14a;border-color:#ffe14a;outline:none}
+.btn:hover:not([disabled])::before{content:"\2726  ";color:#ffe14a}
+.btn.big{font-size:14px;padding:15px 20px;display:block;width:100%;max-width:440px;margin:9px auto}
+.btn.sm{font-size:9px;padding:7px 9px;min-height:34px;margin:3px}
+.btn.alt{color:#ccc;border-color:#777}
+.btn.go{color:#ffe14a;border-color:#ffe14a}
+.btn.danger{color:#ff5a6a;border-color:#ff5a6a}
+.btn[disabled]{opacity:.35;cursor:not-allowed}
+.card{border:3px solid #fff;padding:12px;margin:10px auto;text-align:left;background:#000;max-width:640px}
+.card.sel{border-color:#ffe14a}
+.card.locked{border-color:#444;color:#777}
+.card h3{margin:0 0 8px}
+.row{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:4px}
+.between{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px;text-align:left}
+.grid .card{margin:0}
+.tag{display:inline-block;font-size:9px;border:2px solid #555;padding:5px 7px;margin:3px;color:#ccc}
+.tag.y{border-color:#ffe14a;color:#ffe14a}
+.statbar{height:8px;background:#222;margin:3px 0 7px;position:relative}
+.statbar i{display:block;height:100%}
+table.stats{width:100%;border-collapse:collapse;font-size:10px;margin:8px 0}
+table.stats td{padding:7px 4px;border-bottom:2px solid #1c1c1c;vertical-align:middle;text-align:left}
+table.stats td.num{text-align:center;white-space:nowrap}
+table.stats .desc{font-size:8px;color:#888;display:block;margin-top:4px;line-height:1.5}
+.pend{color:#6aff8a}
+.chips{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:6px 0 12px}
+.chip{font:inherit;font-size:9px;background:#000;color:#ddd;border:2px solid #555;padding:8px 9px;cursor:pointer;min-height:36px;touch-action:manipulation}
+.chip.on{border-color:#ffe14a;color:#ffe14a}
+.chip.lock{color:#777;border-style:dashed}
+.chip .sw{display:inline-block;width:10px;height:10px;margin-right:6px;vertical-align:middle;border:1px solid #fff}
+canvas.pv{image-rendering:pixelated;display:block;margin:8px auto;background:#000;border:3px solid #fff}
+#modal{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.75);display:none;align-items:center;justify-content:center;z-index:30;padding:16px}
+#modal.show{display:flex}
+#modal .box{background:#000;border:3px solid #fff;padding:20px;max-width:460px;width:100%;text-align:center}
+#modal input{font:inherit;font-size:12px;width:100%;padding:10px;background:#000;color:#fff;border:2px solid #aaa;margin:10px 0;-webkit-user-select:text;user-select:text}
+#toasts{position:fixed;bottom:14px;left:50%;transform:translateX(-50%);z-index:40;display:flex;flex-direction:column;gap:6px;align-items:center;pointer-events:none;width:92%;max-width:420px}
+.toast{background:#000;border:3px solid #ffe14a;color:#fff;font-size:9px;line-height:1.7;padding:10px 12px;animation:tin .25s ease-out;text-align:center}
+.toast b{color:#ffe14a}
+@keyframes tin{from{transform:translateY(-20px);opacity:0}to{transform:none;opacity:1}}
+.pop{position:fixed;left:50%;top:40%;transform:translate(-50%,-50%);z-index:45;font-size:22px;color:#ffe14a;text-shadow:3px 3px 0 #1a7cff;pointer-events:none;animation:popup 1.1s ease-out forwards;white-space:nowrap}
+@keyframes popup{0%{transform:translate(-50%,-50%) scale(.4);opacity:0}20%{transform:translate(-50%,-50%) scale(1.15);opacity:1}100%{transform:translate(-50%,-120%) scale(1);opacity:0}}
+.foot{margin-top:18px;font-size:8px;color:#666;line-height:2}
+.relic{cursor:pointer}
+.relic:hover{border-color:#ffe14a}
+.ach{opacity:.45}.ach.got{opacity:1;border-color:#ffe14a}
+.plat-phone h1.logo{font-size:28px}
+.plat-phone .btn.big{font-size:13px}
+@media (max-width:420px){h2{font-size:14px}.grid{grid-template-columns:1fr}}
+@media (min-width:1700px){.panel{max-width:980px}p,li{font-size:12px}.btn{font-size:13px}.btn.big{font-size:16px;max-width:520px}}
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="stage">
+    <canvas id="cv" width="640" height="480"></canvas>
+    <div id="topbtns">
+      <button class="tbtn" id="btnMute" title="Mute (M)">SND</button>
+      <button class="tbtn" id="btnFull" title="Fullscreen (F)">FULL</button>
+      <button class="tbtn" id="btnPause" title="Pause (Esc)" style="display:none">II</button>
+    </div>
+  </div>
+  <div id="touch">
+    <div class="tcol">
+      <button class="tb small" id="tSpell">SPELL</button>
+      <button class="tb small" id="tSpecial">SPECIAL</button>
+    </div>
+    <button class="tb" id="tFire">FIRE</button>
+  </div>
+</div>
+<div id="ui"></div>
+<div id="modal"><div class="box" id="modalBox"></div></div>
+<div id="toasts"></div>
+<script>
+(function () {
+  'use strict';
+  /* ======================= ARCHITECTURE MAP =======================
+   *  1. CONFIG & UTIL   – platform flag, helpers, number formatting
+   *  2. DATA TABLES     – STATS, GRADES, CLASSES, PERKS, RELICS, PATTERN_INFO,
+   *                       BOSSES, SHAPES/HATS/SHOTS pixel maps, COSMETICS,
+   *                       ACHIEVEMENTS, CHEATS
+   *  3. SAVE SYSTEM     – defaultState / normalizeState, 3 slots + Sandbox
+   *  4. SOUND           – Web Audio synth, per-sound rate limits, mute
+   *  5. STAT MATH       – soft caps, scaling grades, derived stats, perks
+   *  6. SPRITES         – pixel maps -> cached canvases, spark drawing
+   *  7. INPUT           – keyboard, touch drag, on-screen buttons
+   *  8. COMBAT          – fight state machine, attack patterns, collisions
+   *  9. RENDER          – fight scene, HUD, menu background
+   * 10. UI SCREENS      – DOM menus generated from the data tables
+   * 11. ACHIEVEMENTS & CHEATS
+   * 12. MAIN LOOP & BOOT
+   * ================================================================ */
+
+  /* ===================== 1. CONFIG & UTIL ===================== */
+  var PLATFORM = 'phone'; // build script sets 'phone' / 'desktop'; anything else = auto-detect
+  var IS_TOUCH = ('ontouchstart' in window) || (navigator.maxTouchPoints || 0) > 0;
+  if (PLATFORM !== 'phone' && PLATFORM !== 'desktop') {
+    PLATFORM = (IS_TOUCH && Math.min(window.screen.width, window.screen.height) < 820) ? 'phone' : 'desktop';
+  }
+  document.documentElement.className += ' plat-' + PLATFORM;
+
+  // Phone uses a taller canvas so text stays readable in portrait.
+  var W = PLATFORM === 'phone' ? 400 : 640, H = PLATFORM === 'phone' ? 560 : 480;
+  var CX = W / 2, BOX_BOTTOM = PLATFORM === 'phone' ? 420 : 400;
+  var FONT = '"Press Start 2P", "Courier New", monospace';
+  var VERSION = '1.0';
+
+  function clamp(v, a, b) { return v < a ? a : (v > b ? b : v); }
+  function rand(a, b) { return a + Math.random() * (b - a); }
+  function randi(a, b) { return Math.floor(rand(a, b + 1)); }
+  function shuffle(a) { for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+  function byId(list) { var o = {}; for (var i = 0; i < list.length; i++) o[list[i].id] = list[i]; return o; }
+  function copy(o) { return JSON.parse(JSON.stringify(o)); }
+  function esc(s) {
+    return String(s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; });
+  }
+  // Commas under 1M, then 1.25M / 30B / 2.5T / 1Qa
+  function fmt(n) {
+    n = Math.floor(n);
+    if (Math.abs(n) < 1e6) return n.toLocaleString('en-US');
+    var units = [[1e15, 'Qa'], [1e12, 'T'], [1e9, 'B'], [1e6, 'M']];
+    for (var i = 0; i < units.length; i++) if (Math.abs(n) >= units[i][0]) return (n / units[i][0]).toFixed(2).replace(/\.?0+$/, '') + units[i][1];
+    return String(n);
+  }
+  function fmtTime(sec) { sec = Math.max(0, sec); var m = Math.floor(sec / 60), s = Math.floor(sec % 60); return m + ':' + (s < 10 ? '0' : '') + s; }
+  var ECHO = '✦';   // ✦
+  var SPARKC = '✦';
+  var STAR = '★';   // ★
+
+  /* ===================== 2. DATA TABLES ===================== */
+  var STATS = [
+    { id: 'vig', name: 'Vigor',   short: 'VIG', desc: 'Max HP',                        color: '#ff5a6a' },
+    { id: 'grd', name: 'Guard',   short: 'GRD', desc: 'Take less damage, bigger shield', color: '#6ad8ff' },
+    { id: 'mgt', name: 'Might',   short: 'MGT', desc: 'Shot damage',                   color: '#ff9a3a' },
+    { id: 'agi', name: 'Agility', short: 'AGI', desc: 'Move speed, fire rate, stamina', color: '#6aff8a' },
+    { id: 'arc', name: 'Arcane',  short: 'ARC', desc: 'Spell power and mana',          color: '#c07aff' },
+    { id: 'lck', name: 'Luck',    short: 'LCK', desc: 'Crits and Shard drops',    color: '#ffe14a' }
+  ];
+  var STAT_BY_ID = byId(STATS);
+  // Soft caps: points past 15 are worth half, past 25 a fifth, so spreading points wins.
+  var SOFTCAP1 = 15, SOFTCAP2 = 25;
+  var PERK_NEED = 10;
+  var GRADES = { S: 1.0, A: 0.8, B: 0.6, C: 0.4, D: 0.25, E: 0.12 };
+
+  var CLASSES = [
+    { id: 'striker', name: 'Striker', role: 'Attack', unlock: 0, color: '#ff9a3a',
+      stats: { vig: 8, grd: 4, mgt: 11, agi: 9, arc: 3, lck: 5 },
+      weapon: { name: 'Twin Fang', scale: { mgt: 'B', agi: 'D' } },
+      spell: { name: 'Flare Burst', scale: { mgt: 'C', arc: 'D' } },
+      passive: 'Every 5th shot deals double damage.' },
+    { id: 'warden', name: 'Warden', role: 'Defense', unlock: 0, color: '#6ad8ff',
+      stats: { vig: 11, grd: 11, mgt: 6, agi: 5, arc: 4, lck: 3 },
+      weapon: { name: 'Bulwark Cannon', scale: { mgt: 'B', grd: 'B' } },
+      spell: { name: 'Stone Aegis', scale: { grd: 'C', arc: 'C' } },
+      passive: 'Perfect blocks heal 1 HP. Shield drains 30% slower.' },
+    { id: 'mystic', name: 'Mystic', role: 'Magic', unlock: 0, color: '#c07aff',
+      stats: { vig: 7, grd: 4, mgt: 4, agi: 7, arc: 14, lck: 4 },
+      weapon: { name: 'Star Wand', scale: { arc: 'A', mgt: 'E' } },
+      spell: { name: 'Star Nova', scale: { arc: 'S' } },
+      passive: 'Mana refills twice as fast while moving. Bigger spell blast.' },
+    { id: 'spellblade', name: 'Spellblade', role: 'Attack + Magic', unlock: 40, color: '#ff7ad9',
+      stats: { vig: 8, grd: 5, mgt: 9, agi: 5, arc: 9, lck: 4 },
+      weapon: { name: 'Rune Edge', scale: { mgt: 'B', arc: 'B' } },
+      spell: { name: 'Rune Slash', scale: { arc: 'B', mgt: 'D' } },
+      passive: 'Every shot that hits restores a little mana.' },
+    { id: 'paladin', name: 'Paladin', role: 'Defense + Magic', unlock: 60, color: '#ffe14a',
+      stats: { vig: 10, grd: 9, mgt: 5, agi: 4, arc: 8, lck: 4 },
+      weapon: { name: 'Dawn Hammer', scale: { mgt: 'C', arc: 'C', grd: 'D' } },
+      spell: { name: 'Holy Light', scale: { arc: 'A' } },
+      passive: 'Spells also heal 3 HP.' },
+    { id: 'gambler', name: 'Gambler', role: 'Luck', unlock: 90, color: '#6aff8a',
+      stats: { vig: 6, grd: 5, mgt: 6, agi: 6, arc: 5, lck: 12 },
+      weapon: { name: 'Loaded Dice', scale: { lck: 'A', mgt: 'D' } },
+      spell: { name: 'Jackpot', scale: { lck: 'B', arc: 'C' } },
+      passive: 'Shot damage is random (0.3x-1.7x). +25% Shards.' }
+  ];
+  var CLASS_BY_ID = byId(CLASSES);
+
+  // Combo perks: unlock automatically when BOTH stats reach PERK_NEED.
+  var PERKS = [
+    { id: 'enchant',    name: 'Enchanted Shots', need: ['mgt', 'arc'], desc: 'Shots set the boss on fire.' },
+    { id: 'mirror',     name: 'Mirror Shield',   need: ['grd', 'arc'], desc: 'Blocked bullets fly back and hurt the boss.' },
+    { id: 'grazecrit',  name: 'Graze Crits',     need: ['agi', 'lck'], desc: 'Each graze makes your next shot a crit.' },
+    { id: 'secondwind', name: 'Second Wind',     need: ['vig', 'grd'], desc: 'Survive one deadly hit per boss at 1 HP.' },
+    { id: 'swift',      name: 'Swift Strikes',   need: ['mgt', 'agi'], desc: '+15% fire rate; every 6th shot is a 3-way spread.' },
+    { id: 'luckyspell', name: 'Lucky Spell',     need: ['arc', 'lck'], desc: 'Spells have a 30% chance to cost no mana.' }
+  ];
+
+  // Relics: pick 1 of 3 after each boss. apply() edits the modifier object.
+  var RELICS = [
+    { id: 'twin',      name: 'Twin Barrel',     desc: 'Fire 2 shots at once, each deals 65% damage.', apply: function (m) { m.twin = true; } },
+    { id: 'glass',     name: 'Glass Heart',     desc: '+40% damage, but -25% max HP.',               apply: function (m) { m.dmgMult *= 1.4; m.hpMult *= 0.75; } },
+    { id: 'spare',     name: 'Spare Spark',     desc: 'Revive once at half HP. -10% damage.',        apply: function (m) { m.lives += 1; m.dmgMult *= 0.9; } },
+    { id: 'magnet',    name: 'Shard Magnet',    desc: '+35% Shards.',                           apply: function (m) { m.shardMult *= 1.35; } },
+    { id: 'watch',     name: 'Pocket Watch',    desc: 'Your turn lasts 1.5s longer.',                apply: function (m) { m.turnBonus += 1.5; } },
+    { id: 'tiny',      name: 'Tiny Spark',      desc: 'Your hitbox is 30% smaller.',                 apply: function (m) { m.hitboxMult *= 0.7; } },
+    { id: 'thick',     name: 'Thick Skin',      desc: 'Take 12% less damage.',                       apply: function (m) { m.drFlat += 0.12; } },
+    { id: 'spring',    name: 'Mana Spring',     desc: 'Mana refills 2x faster.',                     apply: function (m) { m.manaRegenMult *= 2; } },
+    { id: 'engine',    name: 'Graze Engine',    desc: 'Special meter fills 50% faster.',             apply: function (m) { m.grazeMult *= 1.5; } },
+    { id: 'charm',     name: 'Healing Charm',   desc: 'Heal 30% more HP after each boss.',           apply: function (m) { m.healAfter += 0.3; } },
+    { id: 'lens',      name: 'Crit Lens',       desc: '+10% crit chance.',                           apply: function (m) { m.critAdd += 0.10; } },
+    { id: 'band',      name: 'Stamina Band',    desc: 'Shield drains 40% slower.',                   apply: function (m) { m.drainMult *= 0.6; } },
+    { id: 'fang',      name: 'Vampire Fang',    desc: 'Heal 1 HP for every 60 damage you deal.',     apply: function (m) { m.lifesteal += 1; } },
+    { id: 'hourglass', name: 'Sand Hourglass',  desc: 'Enemy bullets move 12% slower.',              apply: function (m) { m.bulletSlow *= 0.88; } },
+    { id: 'ember',     name: 'Ember Stone',     desc: 'Shots set the boss on fire.',                 apply: function (m) { m.burn = true; } },
+    { id: 'coin',      name: 'Lucky Coin',      desc: '+6 Luck.',                                    apply: function (m) { m.luckAdd += 6; } },
+    { id: 'boots',     name: 'Feather Boots',   desc: '+20% move speed.',                            apply: function (m) { m.speedMult *= 1.2; } },
+    { id: 'cell',      name: 'Overcharge Cell', desc: 'Special deals 60% more damage.',              apply: function (m) { m.specialMult *= 1.6; } }
+  ];
+  var RELIC_BY_ID = byId(RELICS);
+
+  var PATTERN_INFO = {
+    rain:      { name: 'Drizzle',     desc: 'Drops fall from above.' },
+    aimed:     { name: 'Aimed Shots', desc: 'Bursts fired right at you.' },
+    ring:      { name: 'Rings',       desc: 'Bullets burst out in a circle.' },
+    wave:      { name: 'Wiggle Rain', desc: 'Drops that sway side to side.' },
+    homing:    { name: 'Seekers',     desc: 'Slow orbs that follow you, then fade.' },
+    walls:     { name: 'Walls',       desc: 'Rows of bullets with one gap. Find it!' },
+    bombs:     { name: 'Bombs',       desc: 'Falling bombs that pop into rings.' },
+    sidesweep: { name: 'Side Sweep',  desc: 'Bullets rush in from the sides.' },
+    bouncers:  { name: 'Bouncers',    desc: 'Balls that bounce around the box.' },
+    spiral:    { name: 'Spiral',      desc: 'A spinning bullet spiral.' },
+    lasers:    { name: 'Lasers',      desc: 'Warning line, then a beam. Guard cannot block these!' },
+    cross:     { name: 'Crossfire',   desc: 'Bullets from every side, aimed at you.' }
+  };
+
+  // Boss sprites: 16 rows x 8 columns, mirrored to 16x16.
+  var BOSSES = [
+    { id: 'pip', name: 'Pip the Puddle', title: 'A suspiciously friendly slime', hp: 1100, dmg: 5, spd: 0.85, dens: 0.85, turn: 6, box: [260, 170], light: false, combo: false, sway: 0, par: 45,
+      quip: 'blub! (It wobbles at you menacingly.)',
+      pal: { a: '#5ad35a', b: '#2f8a3a', c: '#b6ffb0', e: '#ffffff', k: '#111111', r: '#ff6a8a' },
+      phases: [{ at: 1, pats: ['rain', 'aimed'] }],
+      sprite: ['........', '........', '........', '........', '.......c', '.....cca', '....caaa', '...caaaa', '..caeeka', '..caekka', '.caaaaaa', '.aaaaaar', 'aaaaaaaa', 'baaaaaaa', 'bbaaaaaa', '.bbbbbbb'] },
+    { id: 'candle', name: 'Sir Candlewick', title: 'Knight of the Melting Order', hp: 1500, dmg: 6, spd: 0.95, dens: 0.95, turn: 6.5, box: [260, 170], light: true, combo: false, sway: 0, par: 50,
+      quip: 'Mind the wax. I just mopped.',
+      pal: { a: '#f3e7c9', b: '#b89e6a', c: '#fffbe8', d: '#d8c49a', k: '#222222', r: '#ff6a1a', y: '#ffe14a' },
+      phases: [{ at: 1, pats: ['rain', 'ring', 'aimed'] }],
+      sprite: ['.......r', '......ry', '......ry', '.....ryy', '......ry', '.......k', '....cccc', '....aaaa', '....akaa', '....akaa', '...daaaa', '....aakk', '....aaaa', '...baaaa', '..bbbbbb', '.bbbbbbb'] },
+    { id: 'moth', name: 'Queen Lumina', title: 'Monarch of the Lamplight', hp: 2000, dmg: 7, spd: 1.0, dens: 1.05, turn: 7, box: [260, 170], light: true, combo: false, sway: 20, par: 60,
+      quip: 'Every light belongs to ME. Including yours.',
+      pal: { a: '#b37aff', b: '#5a3a8a', c: '#ffc8f0', k: '#111111', y: '#ffd84a' },
+      phases: [{ at: 1, pats: ['wave', 'homing', 'aimed'] }],
+      sprite: ['...b...y', '....b.yy', 'a....baa', 'aa...aka', 'aca..aaa', 'acca.aaa', 'accca.ba', 'acccaaba', 'accccaba', '.acccaba', '..accaba', '..acca.b', '.acca..b', 'acca...b', 'aca.....', 'aa......'] },
+    { id: 'golem', name: 'Grumble Golem', title: 'A rock with a grudge', hp: 2600, dmg: 8, spd: 1.05, dens: 1.1, turn: 7.5, box: [260, 170], light: true, combo: false, sway: 30, par: 70,
+      quip: 'GRUMBLE. (It woke up on the wrong side of the cave.)',
+      pal: { a: '#9a8f84', b: '#5a524a', e: '#7af0ff', k: '#222222' },
+      phases: [{ at: 1, pats: ['walls', 'bombs', 'rain'] }],
+      sprite: ['........', '...bbbbb', '..baaaaa', '.baaaaaa', '.baeekaa', '.baeekaa', '.baaaaaa', '.bakkkkk', 'bbaaaaaa', 'baaaaaaa', 'aa.baaaa', 'aa.baaaa', 'aa.baaaa', '...baaaa', '...bbb..', '..bbbb..'] },
+    { id: 'jesters', name: 'The Twin Jesters', title: 'Double the trouble', hp: 3300, dmg: 9, spd: 1.1, dens: 1.15, turn: 8, box: [250, 160], light: true, combo: false, sway: 40, par: 80,
+      quip: 'Two jesters, one joke: YOU!',
+      pal: { a: '#a04aff', c: '#ffd84a', e: '#fff0e0', k: '#111111', r: '#ff3a5a' },
+      phases: [{ at: 1, pats: ['sidesweep', 'bouncers', 'spiral'] }],
+      sprite: ['r.......', 'aa......', '.aa....c', '..aaa.cc', '...aaccc', '....eeee', '...eeeee', '...ekkee', '...eeeee', '...eeerr', '....eeee', '..cacaca', '.acacaca', '..aaaaaa', '..aa..aa', '.aaa..aa'] },
+    { id: 'wyrm', name: 'Frostbyte Wyrm', title: 'Wyrm of the Cold Code', hp: 4100, dmg: 10, spd: 1.15, dens: 1.18, turn: 8.5, box: [250, 160], light: true, combo: true, sway: 50, par: 95,
+      quip: 'Your spark runs hot. Let me cool it down. Permanently.',
+      pal: { a: '#8ad8ff', b: '#3a6aa8', c: '#ffffff', e: '#ffe14a', k: '#111111' },
+      phases: [{ at: 1, pats: ['lasers', 'wave', 'ring'] }],
+      sprite: ['b.......', 'bb....b.', '.bb..bb.', '..bbbbaa', '..baaaaa', '.baaaaaa', '.baekaaa', 'baaaaaaa', 'baaaaaaa', 'baaccccc', 'ba.c.c.c', 'baaaaaaa', '.baaaaaa', '..bbaaaa', '....bbbb', '........'] },
+    { id: 'tyrant', name: 'Tick-Tock Tyrant', title: 'Master of borrowed time', hp: 5000, dmg: 11, spd: 1.2, dens: 1.22, turn: 9, box: [240, 160], light: true, combo: true, sway: 60, par: 110,
+      quip: 'You are LATE. Tick. Tock.',
+      pal: { a: '#c8963a', b: '#6a4a1a', c: '#fff4d8', k: '#222222', r: '#ff3a3a', y: '#ffd84a' },
+      phases: [{ at: 1, pats: ['spiral', 'walls', 'cross'] }, { at: 0.5, pats: ['lasers', 'spiral', 'walls', 'cross'], spd: 1.05 }],
+      sprite: ['...y.y.y', '...yyyyy', '..bbbbbb', '.bcccccc', 'bcccckcc', 'bccccckc', 'bcccccck', 'bccccccr', 'bccccccc', 'bccccccc', 'bcckcccc', '.bcccccc', '..bbbbbb', '....ab..', '...aab..', '........'] },
+    { id: 'mask', name: 'Nightmare Mask', title: 'The face behind faces', hp: 6000, dmg: 12, spd: 1.25, dens: 1.27, turn: 9, box: [240, 160], light: true, combo: true, sway: 70, par: 120,
+      quip: 'Which face will you wear when you lose?',
+      pal: { a: '#f4f4f4', b: '#8a8a9a', k: '#0a0a0a', r: '#ff2a3a' },
+      phases: [{ at: 1, pats: ['homing', 'bombs', 'lasers', 'sidesweep'] }],
+      sprite: ['........', '..bbbbbb', '.baaaaaa', 'baaaaaaa', 'baakkkaa', 'bakkrkka', 'baakkkaa', 'baaaaaaa', 'baaaaaaa', '.baaaaak', '.baaaakk', '..baaaaa', '..bakaka', '...baaaa', '....bbbb', '........'] },
+    { id: 'eater', name: 'Star Eater', title: 'Devourer of constellations', hp: 7200, dmg: 13, spd: 1.3, dens: 1.32, turn: 9.5, box: [230, 150], light: true, combo: true, sway: 80, par: 140,
+      quip: 'I have eaten a thousand stars. You look like a snack.',
+      pal: { a: '#5a2a8a', c: '#ffe14a', k: '#0a0a0a', e: '#ffffff', r: '#ff7ad9' },
+      phases: [{ at: 1, pats: ['cross', 'spiral', 'bouncers', 'aimed'] }],
+      sprite: ['c......a', '.....aaa', '....aaaa', 'c..aaaaa', '..aaaeka', '.aaaaaaa', 'aaaakkkk', 'aaakekek', 'aaakkkkk', 'aaakekek', 'aaaakkkk', '.aaaaaaa', '..aaaaaa', 'c..aaaaa', '.....aaa', 'c.......'] },
+    { id: 'echo', name: 'The Last Echo', title: 'Every spark that came before', hp: 11000, dmg: 14, spd: 1.35, dens: 1.36, turn: 10, box: [240, 160], light: true, combo: false, sway: 70, par: 190,
+      quip: 'I am every spark that tried before you. Show me you are different.',
+      pal: { a: '#3a3a4a', b: '#1a1a24', c: '#ffffff', k: '#0a0a0a', r: '#ff2a4a' },
+      phases: [{ at: 1, pats: ['rain', 'ring', 'wave', 'walls'], combo: true },
+               { at: 0.66, pats: ['sidesweep', 'bouncers', 'lasers', 'homing'], combo: true },
+               { at: 0.33, pats: ['spiral', 'cross', 'bombs', 'aimed'], spd: 1.1, combo: true }],
+      sprite: ['.......b', '......bb', '.....bbb', '....bbaa', '...bbaaa', '...baakk', '..bbakck', '..bbakkk', '..bbaakk', '.bbbaaaa', '.bbaaaar', 'bbaaaarr', 'bbaaaaar', 'bbaaaaaa', 'bbbaaaaa', 'bbbbbbbb'] }
+  ];
+  // Difficulty: multiplies boss stats. turnFireFrom = first boss (0-based) that also attacks on your turn.
+  var DIFFICULTIES = [
+    { id: 'easy',   name: 'Easy',   color: '#6aff8a', hp: 0.8, dmg: 0.7, spd: 0.9,  dens: 0.8,  turnFireFrom: 7, heal: 1.25, echo: 0.75, desc: 'Slower bullets and weaker bosses. Good for learning.' },
+    { id: 'normal', name: 'Normal', color: '#4ad8ff', hp: 1.0, dmg: 1.0, spd: 1.05, dens: 1.1,  turnFireFrom: 5, heal: 1,    echo: 1,    desc: 'The intended challenge. Bosses 6+ attack on your turn.' },
+    { id: 'hard',   name: 'Hard',   color: '#ff9a3a', hp: 1.2, dmg: 1.3, spd: 1.15, dens: 1.25, turnFireFrom: 2, heal: 0.75, echo: 1.5,  desc: 'Faster, meaner, attacks on your turn from boss 3. x1.5 Echoes.' },
+    { id: 'death',  name: 'Death',  color: '#ff4a5a', hp: 1.4, dmg: 1.7, spd: 1.3,  dens: 1.45, turnFireFrom: 0, heal: 0.4,  echo: 2.25, desc: 'Always attacking, huge damage, little healing. x2.25 Echoes.' }
+  ];
+  var DIFF_BY_ID = byId(DIFFICULTIES);
+
+  // How each attack reshapes the arena box: [width x, height x] of the boss's normal box.
+  var PATTERN_BOX = { rain: [0.8, 1.15], aimed: [0.75, 0.9], ring: [1.15, 1.1], wave: [1, 1.1], homing: [0.9, 0.95], walls: [1.3, 0.95],
+    bombs: [1.1, 1.05], sidesweep: [1.25, 0.8], bouncers: [0.85, 0.9], spiral: [1.15, 1.15], lasers: [1.25, 1.0], cross: [0.8, 0.8] };
+
+  // Chiptune: one song per boss (motif, root note as MIDI, tempo). Speeds up in the final phase.
+  var MOTIFS = [
+    { bass: [0, null, 0, null, 5, null, 5, null, 3, null, 3, null, 4, null, 4, 6], lead: [7, null, 9, null, 10, 9, 7, null, 5, null, 7, null, 4, null, null, null] },
+    { bass: [0, 0, null, 0, 3, 3, null, 3, 5, 5, null, 5, 4, 4, null, 6], lead: [0, 2, 4, 2, 7, 4, 2, 4, 5, 7, 9, 7, 6, 4, 2, null] },
+    { bass: [0, null, 0, 7, 0, null, 0, 7, -2, null, -2, 5, -3, null, -3, 4], lead: [9, null, 7, null, 9, 11, 9, 7, 5, null, 4, null, 5, 7, 4, null] }
+  ];
+  var SONGS = [{ m: 0, root: 45, bpm: 108 }, { m: 1, root: 47, bpm: 114 }, { m: 2, root: 43, bpm: 120 }, { m: 0, root: 40, bpm: 126 }, { m: 1, root: 45, bpm: 132 },
+               { m: 2, root: 42, bpm: 138 }, { m: 0, root: 44, bpm: 144 }, { m: 1, root: 41, bpm: 150 }, { m: 2, root: 46, bpm: 156 }, { m: 0, root: 38, bpm: 162 }];
+  var SCALE_MINOR = [0, 2, 3, 5, 7, 8, 10];
+
+  var SILLY_QUIPS = ['...wait, did I leave the stove on?', 'Is this the line for the bathroom?', '(It is reading a book called "How To Be Scary".)'];
+
+  // Spark shapes (8x8, X = filled)
+  var SHAPES = {
+    spark:   ['...XX...', '...XX...', '..XXXX..', 'XXXXXXXX', 'XXXXXXXX', '..XXXX..', '...XX...', '...XX...'],
+    bolt:    ['....XXX.', '...XXX..', '..XXX...', '.XXXXXX.', '...XXX..', '..XXX...', '.XXX....', '.X......'],
+    star:    ['...XX...', '...XX...', 'XXXXXXXX', '.XXXXXX.', '..XXXX..', '.XXXXXX.', '.XX..XX.', 'X......X'],
+    diamond: ['...XX...', '..XXXX..', '.XXXXXX.', 'XXXXXXXX', 'XXXXXXXX', '.XXXXXX.', '..XXXX..', '...XX...'],
+    orb:     ['..XXXX..', '.XXXXXX.', 'XXXXXXXX', 'XXXXXXXX', 'XXXXXXXX', 'XXXXXXXX', '.XXXXXX.', '..XXXX..'],
+    skull:   ['.XXXXXX.', 'XXXXXXXX', 'X..XX..X', 'X..XX..X', 'XXXXXXXX', '.XX..XX.', '.XXXXXX.', '.X.XX.X.'],
+    cat:     ['X......X', 'XX....XX', 'XXXXXXXX', 'X.XXXX.X', 'XXXXXXXX', 'XXX..XXX', '.XXXXXX.', '..XXXX..']
+  };
+  var HATS = {
+    cap:    { col: '#3a6aff', rows: ['..XXXX..', '.XXXXXX.', 'XXXXXXXX', '....XXXX'] },
+    bow:    { col: '#ff7ad9', rows: ['........', '.XX..XX.', 'XXXXXXXX', '.XX..XX.'] },
+    halo:   { col: '#ffe14a', rows: ['..XXXX..', '.X....X.', '..XXXX..', '........'] },
+    horns:  { col: '#ff3a3a', rows: ['X......X', 'XX....XX', '.X....X.', '........'] },
+    crown:  { col: '#ffc400', rows: ['X..XX..X', 'XX.XX.XX', 'XXXXXXXX', 'XXXXXXXX'] },
+    party:  { col: '#6aff8a', rows: ['...X....', '...XX...', '..XXX...', '.XXXXX..'] }
+  };
+  var SHOTS = {
+    dot:     ['.XX.', '.XX.', '.XX.', '.XX.'],
+    star:    ['.X.', 'XXX', '.X.'],
+    bolt:    ['.X', 'XX', 'X.'],
+    diamond: ['.X.', 'XXX', 'XXX', '.X.'],
+    note:    ['.XX', '.X.', 'XX.']
+  };
+
+  // cost > 0 = buy with Echoes; cost -1 = special unlock (how: text)
+  var COSMETICS = {
+    shape: [{ id: 'spark', name: 'Spark', cost: 0 }, { id: 'bolt', name: 'Bolt', cost: 20 }, { id: 'star', name: 'Star', cost: 15 }, { id: 'diamond', name: 'Diamond', cost: 15 },
+            { id: 'orb', name: 'Orb', cost: 20 }, { id: 'skull', name: 'Skull', cost: 25 }, { id: 'cat', name: 'Cat', cost: 30 }],
+    color: [{ id: 'cyan', name: 'Cyan', hex: '#3ae0ff', cost: 0 }, { id: 'yellow', name: 'Yellow', hex: '#ffe14a', cost: 5 }, { id: 'red', name: 'Red', hex: '#ff2a4a', cost: 5 },
+            { id: 'lime', name: 'Lime', hex: '#6aff5a', cost: 5 }, { id: 'pink', name: 'Pink', hex: '#ff7ad9', cost: 5 }, { id: 'white', name: 'White', hex: '#ffffff', cost: 10 },
+            { id: 'purple', name: 'Purple', hex: '#b36bff', cost: 10 }, { id: 'orange', name: 'Orange', hex: '#ff9a3a', cost: 10 },
+            { id: 'gold', name: 'Gold', hex: '#ffc400', cost: -1, how: 'Beat all 10 bosses' },
+            { id: 'rainbow', name: 'Rainbow', hex: 'rainbow', cost: -1, how: 'Beat The Last Echo without getting hit (or a secret code)' }],
+    trail: [{ id: 'none', name: 'None', cost: 0 }, { id: 'sparkle', name: 'Sparkle', cost: 15 }, { id: 'ghost', name: 'Ghost', cost: 20 },
+            { id: 'fire', name: 'Fire', cost: 25 }, { id: 'rainbow', name: 'Rainbow', cost: 40 }],
+    hat:   [{ id: 'none', name: 'None', cost: 0 }, { id: 'cap', name: 'Cap', cost: 10 }, { id: 'bow', name: 'Bow', cost: 10 }, { id: 'halo', name: 'Halo', cost: 20 },
+            { id: 'horns', name: 'Horns', cost: 20 }, { id: 'crown', name: 'Crown', cost: 30 },
+            { id: 'party', name: 'Party Hat', cost: -1, how: 'Take 20 snack breaks (or a secret code)' }],
+    shot:  [{ id: 'dot', name: 'Dot', cost: 0 }, { id: 'star', name: 'Star', cost: 10 }, { id: 'bolt', name: 'Bolt', cost: 10 },
+            { id: 'diamond', name: 'Diamond', cost: 15 }, { id: 'note', name: 'Note', cost: 15 }]
+  };
+  var COSMETIC_CATS = [['shape', 'Spark Shape'], ['color', 'Color'], ['trail', 'Trail'], ['hat', 'Hat'], ['shot', 'Shot Style']];
+
+  var ACHIEVEMENTS = [
+    { id: 'first_blood',  name: 'First Blood',       desc: 'Beat your first boss.',                  reward: 5 },
+    { id: 'halfway',      name: 'Halfway There',     desc: 'Beat boss 5.',                           reward: 10 },
+    { id: 'champion',     name: 'Spark Champion',    desc: 'Beat all 10 bosses in one run.',         reward: 30, unlock: ['color', 'gold'] },
+    { id: 'win_striker',  name: 'Striker Master',    desc: 'Win a run as Striker.',                  reward: 15 },
+    { id: 'win_warden',   name: 'Warden Master',     desc: 'Win a run as Warden.',                   reward: 15 },
+    { id: 'win_mystic',   name: 'Mystic Master',     desc: 'Win a run as Mystic.',                   reward: 15 },
+    { id: 'win_spellblade', name: 'Spellblade Master', desc: 'Win a run as Spellblade.',             reward: 15 },
+    { id: 'win_paladin',  name: 'Paladin Master',    desc: 'Win a run as Paladin.',                  reward: 15 },
+    { id: 'win_gambler',  name: 'Gambler Master',    desc: 'Win a run as Gambler.',                  reward: 15 },
+    { id: 'untouchable',  name: 'Untouchable',       desc: 'Beat a boss without getting hit.',       reward: 10 },
+    { id: 'flawless',     name: 'Absolutely Flawless', desc: 'Beat The Last Echo without getting hit.', reward: 50, secret: true, unlock: ['color', 'rainbow'] },
+    { id: 'grazer',       name: 'Close Shave',       desc: 'Graze 50 bullets in one fight.',         reward: 10 },
+    { id: 'showoff',      name: 'Show-Off',          desc: 'Use 25 Specials in total.',              reward: 10 },
+    { id: 'parry',        name: 'Parry This',        desc: '10 perfect blocks in one fight.',        reward: 10 },
+    { id: 'balanced',     name: 'Balanced Diet',     desc: 'Get all 6 stats to 12 or more.',         reward: 15 },
+    { id: 'combo3',       name: 'Combo Chef',        desc: 'Have 3 combo perks at once.',            reward: 10 },
+    { id: 'glass',        name: 'Glass Cannon',      desc: 'Win a run with 8 Vigor or less.',        reward: 25 },
+    { id: 'tank',         name: 'Tank Engine',       desc: 'Reach 30 Guard.',                        reward: 10 },
+    { id: 'hoarder',      name: 'Relic Hoarder',     desc: 'Hold 6 relics in one run.',              reward: 10 },
+    { id: 'speedy',       name: 'Speedrunner',       desc: 'Beat a boss in under 35 seconds.',       reward: 10 },
+    { id: 'clutch',       name: 'Clutch',            desc: 'Beat a boss with 3 HP or less.',         reward: 10, secret: true },
+    { id: 'second_wind',  name: 'Not Today',         desc: 'Trigger Second Wind.',                   reward: 5 },
+    { id: 'persistent',   name: 'Persistent',        desc: 'Start 10 runs.',                         reward: 10 },
+    { id: 'drip',         name: 'Drip Check',        desc: 'Wear a custom shape, color, trail and hat.', reward: 5 },
+    { id: 'rich',         name: 'Dragon Hoard',      desc: 'Hold 500 Shards at once.',          reward: 10, secret: true },
+    { id: 'skill_issue',  name: 'Skill Issue',       desc: 'Lose to Pip the Puddle. It was a slime.', reward: 5, secret: true },
+    { id: 'butter',       name: 'Butterfingers',     desc: 'Get hit 100 times in total.',            reward: 5 },
+    { id: 'snack',        name: 'Snack Break',       desc: 'Pause 20 times.',                        reward: 5, secret: true, unlock: ['hat', 'party'] },
+    { id: 'win_hard',     name: 'Hardened',          desc: 'Win a run on Hard.',                     reward: 25 },
+    { id: 'win_death',    name: 'Death Defier',      desc: 'Win a run on Death.',                    reward: 60 },
+    { id: 'honk',         name: 'HONK',              desc: 'Find the goose.',                        reward: 5, secret: true }
+  ];
+  var ACH_BY_ID = byId(ACHIEVEMENTS);
+
+  // Cheats: flag:true marks the save as cheated; cosmetic ones do not.
+  var CHEATS = [
+    { code: 'SHARDRAIN', flag: true,  run: function () { if (!S.run) return 'Start a run first!'; S.run.shards += 500; return '+500 Shards'; } },
+    { code: 'GODMODE',   flag: true,  run: function () { godMode = !godMode; return 'God mode ' + (godMode ? 'ON' : 'OFF'); } },
+    { code: 'ECHOES',    flag: true,  run: function () { S.echoes += 200; return '+200 Echoes'; } },
+    { code: 'RAINBOW',   flag: false, run: function () { S.unlocks.color.rainbow = 1; return 'Rainbow color unlocked!'; } },
+    { code: 'PARTYHAT',  flag: false, run: function () { S.unlocks.hat.party = 1; return 'Party hat unlocked!'; } },
+    { code: 'HONK',      flag: false, run: function () { sfx('honk'); unlockAch('honk'); return 'HONK!'; } },
+    { code: 'BIGHEAD',   flag: false, run: function () { bossScale = bossScale === 1.5 ? 1 : 1.5; return 'Big-head bosses ' + (bossScale === 1.5 ? 'ON' : 'OFF'); } },
+    { code: 'TINYBOSS',  flag: false, run: function () { bossScale = bossScale === 0.6 ? 1 : 0.6; return 'Tiny bosses ' + (bossScale === 0.6 ? 'ON' : 'OFF'); } }
+  ];
+  var godMode = false, bossScale = 1;
+
+  /* ===================== 3. SAVE SYSTEM ===================== */
+  var SAVE_KEY = 'sparkGauntlet.v1';
+  var MUTE_KEY = 'sparkGauntlet.mute';
+  var MUSIC_KEY = 'sparkGauntlet.music';
+  var OLD_SAVE_KEY = 'soulGauntlet.v1'; // saves from the first version still load
+  var store = { slots: [null, null, null], sandbox: null };
+  var curKey = null; // 0, 1, 2 or 'sandbox'
+  var S = null;      // the active save
+
+  function lsGet(k) { try { return window.localStorage.getItem(k); } catch (e) { return null; } }
+  function lsSet(k, v) { try { window.localStorage.setItem(k, v); return true; } catch (e) { return false; } }
+
+  function defaultState(name, sandbox) {
+    var s = {
+      v: 1, name: name || 'Spark', sandbox: !!sandbox, echoes: 0,
+      unlocks: { cls: { striker: 1, warden: 1, mystic: 1 }, shape: { spark: 1 }, color: { cyan: 1 }, trail: { none: 1 }, hat: { none: 1 }, shot: { dot: 1 } },
+      skin: { shape: 'spark', color: 'cyan', trail: 'none', hat: 'none', shot: 'dot' },
+      ach: {},
+      stats: { runs: 0, wins: 0, best: 0, hits: 0, grazes: 0, specials: 0, pauses: 0, deaths: 0 },
+      flags: { cheated: false },
+      settings: { tips: null, diff: 'normal' },
+      run: null,
+      created: Date.now()
+    };
+    return s;
+  }
+  function fillDefaults(t, d) {
+    for (var k in d) {
+      if (!d.hasOwnProperty(k)) continue;
+      if (t[k] === undefined || (t[k] === null && d[k] !== null)) t[k] = copy(d[k] === undefined ? null : d[k]);
+      else if (d[k] && typeof d[k] === 'object' && !Array.isArray(d[k]) && t[k] && typeof t[k] === 'object') fillDefaults(t[k], d[k]);
+    }
+  }
+  // Old or damaged saves always load: missing keys get defaults, bad values get fixed.
+  function normalizeState(s, sandbox) {
+    if (!s || typeof s !== 'object') return null;
+    fillDefaults(s, defaultState(s.name, sandbox));
+    s.sandbox = !!sandbox;
+    if (typeof s.echoes !== 'number' || isNaN(s.echoes)) s.echoes = 0;
+    if (!DIFF_BY_ID[s.settings.diff]) s.settings.diff = 'normal';
+    if (s.sandbox) {
+      s.echoes = 99999;
+      CLASSES.forEach(function (c) { s.unlocks.cls[c.id] = 1; });
+      COSMETIC_CATS.forEach(function (cat) { COSMETICS[cat[0]].forEach(function (it) { s.unlocks[cat[0]][it.id] = 1; }); });
+    }
+    COSMETIC_CATS.forEach(function (cat) {
+      var c = cat[0], ok = false;
+      COSMETICS[c].forEach(function (it) { if (it.id === s.skin[c] && s.unlocks[c][it.id]) ok = true; });
+      if (!ok) s.skin[c] = COSMETICS[c][0].id;
+    });
+    var r = s.run;
+    if (r && (typeof r !== 'object' || !CLASS_BY_ID[r.cls] || typeof r.level !== 'number' || r.level < 0 || r.level > 9 || !r.stats)) s.run = null;
+    if (s.run) {
+      r = s.run;
+      STATS.forEach(function (st) { if (typeof r.stats[st.id] !== 'number') r.stats[st.id] = CLASS_BY_ID[r.cls].stats[st.id]; });
+      r.relics = (r.relics || []).filter(function (id) { return !!RELIC_BY_ID[id]; });
+      ['bought', 'shards', 'livesUsed', 'time', 'cleared', 'noHits'].forEach(function (k) { if (typeof r[k] !== 'number' || isNaN(r[k])) r[k] = 0; });
+      if (r.offer && !Array.isArray(r.offer)) r.offer = null;
+      if (r.offer) r.offer = r.offer.filter(function (id) { return !!RELIC_BY_ID[id]; });
+      if (!r.stage) r.stage = 'preview';
+      if (!DIFF_BY_ID[r.diff]) r.diff = 'normal';
+      var mh = derive(r).maxHp;
+      if (typeof r.hp !== 'number' || isNaN(r.hp) || r.hp <= 0) r.hp = mh;
+      r.hp = Math.min(r.hp, mh);
+    }
+    return s;
+  }
+  function loadStore() {
+    var raw = lsGet(SAVE_KEY) || lsGet(OLD_SAVE_KEY);
+    if (!raw) return;
+    try {
+      var o = JSON.parse(raw);
+      if (o && o.slots) for (var i = 0; i < 3; i++) store.slots[i] = normalizeState(o.slots[i], false);
+      if (o && o.sandbox) store.sandbox = normalizeState(o.sandbox, true);
+    } catch (e) { /* corrupted: start fresh but keep the raw text in case */ lsSet(SAVE_KEY + '.broken', raw); }
+  }
+  function persist() {
+    if (S && curKey !== null) { if (curKey === 'sandbox') store.sandbox = S; else store.slots[curKey] = S; }
+    lsSet(SAVE_KEY, JSON.stringify(store));
+  }
+  function slotState(key) { return key === 'sandbox' ? store.sandbox : store.slots[key]; }
+  function setSlot(key, st) { if (key === 'sandbox') store.sandbox = st; else store.slots[key] = st; }
+
+  /* ===================== 4. SOUND ===================== */
+  var AC = null, master = null, musicBus = null, noiseBuf = null;
+  var musicOn = lsGet(MUSIC_KEY) !== '0';
+  var muted = lsGet(MUTE_KEY) === '1';
+  var lastPlay = {};
+  function initAudio() {
+    if (AC) { if (AC.state === 'suspended') { try { AC.resume(); } catch (e) {} } return; }
+    try {
+      AC = new (window.AudioContext || window.webkitAudioContext)();
+      master = AC.createGain(); master.gain.value = 0.22; master.connect(AC.destination);
+      musicBus = AC.createGain(); musicBus.gain.value = 0.55; musicBus.connect(master);
+    } catch (e) { AC = null; }
+  }
+  function tone(f, dur, type, vol, t, f2, dest) {
+    var o = AC.createOscillator(), g = AC.createGain();
+    o.type = type; o.frequency.setValueAtTime(f, t);
+    if (f2) o.frequency.exponentialRampToValueAtTime(f2, t + dur);
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(vol, t + 0.006);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.connect(g); g.connect(dest || master); o.start(t); o.stop(t + dur + 0.03);
+  }
+  function noise(dur, vol, t, dest) {
+    if (!noiseBuf) {
+      noiseBuf = AC.createBuffer(1, AC.sampleRate, AC.sampleRate);
+      var d = noiseBuf.getChannelData(0);
+      for (var i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+    }
+    var s = AC.createBufferSource(), g = AC.createGain();
+    s.buffer = noiseBuf; g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    s.connect(g); g.connect(dest || master); s.start(t); s.stop(t + dur + 0.03);
+  }
+  function arp(notes, step, type, vol, t) { for (var i = 0; i < notes.length; i++) tone(notes[i], step * 1.4, type, vol, t + i * step); }
+  // gap = minimum seconds between two plays of the same sound, so nothing gets spammy.
+  var SFX = {
+    click:   { gap: 0.05, play: function (t) { tone(660, 0.05, 'square', 0.07, t, 880); } },
+    buy:     { gap: 0.08, play: function (t) { arp([520, 780], 0.06, 'square', 0.08, t); } },
+    deny:    { gap: 0.18, play: function (t) { tone(180, 0.14, 'square', 0.07, t, 130); } },
+    shoot:   { gap: 0.1,  play: function (t) { tone(980, 0.03, 'square', 0.02, t, 700); } },
+    hit:     { gap: 0.07, play: function (t) { tone(240, 0.04, 'triangle', 0.05, t, 150); } },
+    crit:    { gap: 0.1,  play: function (t) { tone(520, 0.06, 'square', 0.06, t, 260); } },
+    hurt:    { gap: 0.2,  play: function (t) { tone(320, 0.2, 'sawtooth', 0.11, t, 80); noise(0.12, 0.07, t); } },
+    graze:   { gap: 0.08, play: function (t) { tone(1800, 0.025, 'sine', 0.035, t, 2300); } },
+    block:   { gap: 0.08, play: function (t) { tone(420, 0.05, 'square', 0.06, t, 300); } },
+    perfect: { gap: 0.1,  play: function (t) { tone(1320, 0.14, 'triangle', 0.1, t, 1760); } },
+    spell:   { gap: 0.15, play: function (t) { arp([660, 880, 1100, 1320], 0.04, 'triangle', 0.08, t); } },
+    special: { gap: 0.5,  play: function (t) { tone(180, 0.7, 'sawtooth', 0.1, t, 1200); noise(0.5, 0.06, t); } },
+    ready:   { gap: 0.5,  play: function (t) { arp([880, 1320], 0.07, 'square', 0.06, t); } },
+    turn:    { gap: 0.3,  play: function (t) { tone(440, 0.07, 'square', 0.05, t); tone(660, 0.08, 'square', 0.05, t + 0.08); } },
+    bossturn:{ gap: 0.3,  play: function (t) { tone(330, 0.08, 'square', 0.05, t); tone(220, 0.1, 'square', 0.05, t + 0.08); } },
+    laser:   { gap: 0.25, play: function (t) { tone(140, 0.28, 'sawtooth', 0.035, t, 110); } },
+    pop:     { gap: 0.12, play: function (t) { noise(0.12, 0.05, t); tone(300, 0.08, 'square', 0.03, t, 120); } },
+    phase:   { gap: 0.5,  play: function (t) { arp([220, 180, 150], 0.1, 'sawtooth', 0.08, t); } },
+    bossdie: { gap: 1,    play: function (t) { noise(0.9, 0.12, t); tone(400, 0.9, 'sawtooth', 0.09, t, 40); } },
+    die:     { gap: 1,    play: function (t) { arp([440, 330, 220, 110], 0.12, 'square', 0.09, t); noise(0.4, 0.06, t + 0.3); } },
+    levelup: { gap: 0.3,  play: function (t) { arp([523, 659, 784, 1047], 0.06, 'square', 0.07, t); } },
+    win:     { gap: 1,    play: function (t) { arp([523, 659, 784, 1047, 784, 1047, 1319], 0.1, 'square', 0.08, t); } },
+    ach:     { gap: 0.4,  play: function (t) { arp([784, 988, 1175], 0.07, 'triangle', 0.08, t); } },
+    honk:    { gap: 0.3,  play: function (t) { tone(330, 0.28, 'sawtooth', 0.14, t, 300); tone(334, 0.28, 'square', 0.07, t, 296); } }
+  };
+  function sfx(name) {
+    if (muted || !AC || document.hidden) return;
+    var s = SFX[name]; if (!s) return;
+    var now = AC.currentTime;
+    if (lastPlay[name] !== undefined && now - lastPlay[name] < s.gap) return;
+    lastPlay[name] = now;
+    try { s.play(now + 0.005); } catch (e) {}
+  }
+  // Music: a tiny look-ahead sequencer driven from the main loop.
+  var MUS = { playing: false, song: null, step: 0, next: 0, rate: 1 };
+  function midiF(m) { return 440 * Math.pow(2, (m - 69) / 12); }
+  function degSemi(d) { var o = Math.floor(d / 7), i = ((d % 7) + 7) % 7; return o * 12 + SCALE_MINOR[i]; }
+  function musicStart(idx) { MUS.song = SONGS[idx % SONGS.length]; MUS.step = 0; MUS.rate = 1; MUS.playing = true; MUS.next = AC ? AC.currentTime + 0.15 : 0; }
+  function musicStop() { MUS.playing = false; }
+  function musicTick(paused) {
+    if (!MUS.playing || !AC || !musicBus) return;
+    var now = AC.currentTime;
+    if (muted || !musicOn || document.hidden || paused) { MUS.next = now + 0.1; return; }
+    var song = MUS.song, mo = MOTIFS[song.m], spb = 60 / (song.bpm * MUS.rate) / 4;
+    if (MUS.next < now) MUS.next = now + 0.02;
+    var guard = 0;
+    while (MUS.next < now + 0.15 && guard++ < 8) {
+      var st = MUS.step % 16, t = MUS.next, shift = [0, 0, 3, -2][Math.floor(MUS.step / 16) % 4];
+      var b = mo.bass[st], l = mo.lead[st];
+      try {
+        if (b !== null) tone(midiF(song.root + degSemi(b) + shift), spb * 1.8, 'triangle', 0.1, t, 0, musicBus);
+        if (l !== null) tone(midiF(song.root + 24 + degSemi(l) + shift), spb * 0.9, 'square', 0.028, t, 0, musicBus);
+        if (st % 4 === 0) tone(120, 0.09, 'sine', 0.09, t, 45, musicBus);
+        if (st % 2 === 1) noise(0.03, 0.014, t, musicBus);
+      } catch (e) {}
+      MUS.next += spb; MUS.step++;
+    }
+  }
+  function setMusic(on) { musicOn = on; lsSet(MUSIC_KEY, on ? '1' : '0'); }
+  function setMuted(m) { muted = m; lsSet(MUTE_KEY, m ? '1' : '0'); var b = document.getElementById('btnMute'); if (b) b.textContent = m ? 'MUTED' : 'SND'; }
+
+  /* ===================== 5. STAT MATH ===================== */
+  function eff(v) {
+    if (v <= SOFTCAP1) return v;
+    if (v <= SOFTCAP2) return SOFTCAP1 + (v - SOFTCAP1) * 0.5;
+    return SOFTCAP1 + (SOFTCAP2 - SOFTCAP1) * 0.5 + (v - SOFTCAP2) * 0.2;
+  }
+  function relicMods(relics) {
+    var m = { dmgMult: 1, hpMult: 1, fireMult: 1, speedMult: 1, shardMult: 1, turnBonus: 0, hitboxMult: 1, drFlat: 0, manaRegenMult: 1,
+      grazeMult: 1, healAfter: 0, critAdd: 0, drainMult: 1, lifesteal: 0, bulletSlow: 1, burn: false, luckAdd: 0, lives: 0, twin: false, specialMult: 1 };
+    for (var i = 0; i < relics.length; i++) if (RELIC_BY_ID[relics[i]]) RELIC_BY_ID[relics[i]].apply(m);
+    return m;
+  }
+  function activePerks(stats) {
+    var o = {};
+    PERKS.forEach(function (p) { if (stats[p.need[0]] >= PERK_NEED && stats[p.need[1]] >= PERK_NEED) o[p.id] = true; });
+    return o;
+  }
+  function perkCount(stats) { var n = 0, o = activePerks(stats); for (var k in o) if (o.hasOwnProperty(k)) n++; return n; }
+  function scaleDmg(base, scale, e, k) {
+    var v = base;
+    for (var s in scale) if (scale.hasOwnProperty(s)) v += e[s] * GRADES[scale[s]] * k;
+    return v;
+  }
+  function derive(run, statsOverride) {
+    var cls = CLASS_BY_ID[run.cls], st = statsOverride || run.stats, m = relicMods(run.relics || []);
+    var e = {};
+    STATS.forEach(function (s) { e[s.id] = eff(st[s.id] + (s.id === 'lck' ? m.luckAdd : 0)); });
+    var perks = activePerks(st);
+    var d = {};
+    d.maxHp = Math.round((30 + e.vig * 4) * m.hpMult);
+    d.dr = clamp(e.grd * 0.022 + m.drFlat, 0, 0.7);
+    d.shieldR = 13 + e.grd * 0.35;
+    d.drain = 40 * (cls.id === 'warden' ? 0.7 : 1) * m.drainMult;
+    d.stamRegen = 28 + e.agi * 1.2;
+    d.speed = (130 + e.agi * 5) * m.speedMult;
+    d.fireRate = (4 + e.agi * 0.15) * (perks.swift ? 1.15 : 1) * m.fireMult;
+    d.shotDmg = scaleDmg(4, cls.weapon.scale, e, 0.9) * m.dmgMult * (m.twin ? 0.65 : 1);
+    d.spellDmg = scaleDmg(20, cls.spell.scale, e, 2.2) * m.dmgMult;
+    d.crit = clamp(0.03 + e.lck * 0.007 + m.critAdd, 0, 0.75);
+    d.manaMax = Math.round(20 + e.arc * 3);
+    d.manaRegen = (1.2 + e.arc * 0.06) * m.manaRegenMult;
+    d.spellCost = 15;
+    d.shardMult = (1 + e.lck * 0.02) * m.shardMult * (cls.id === 'gambler' ? 1.25 : 1);
+    d.hitR = 4 * m.hitboxMult;
+    d.turnBonus = m.turnBonus; d.grazeMult = m.grazeMult; d.healAfter = 0.4 + m.healAfter;
+    d.lifesteal = m.lifesteal; d.bulletSlow = m.bulletSlow; d.burn = m.burn || !!perks.enchant;
+    d.lives = m.lives; d.twin = m.twin; d.specialMult = m.specialMult; d.perks = perks;
+    return d;
+  }
+  function pointCost(n) { return 12 + 3 * n; }
+  function soulLevel(stats) { var t = 0; STATS.forEach(function (s) { t += stats[s.id]; }); return t - 30; }
+  function healCost(level) { return 15 + 5 * level; }
+  // Saving rewards: skip a shop entirely -> 15% interest on held Shards after the next boss (capped so hoarding can't snowball).
+  var INTEREST_RATE = 0.15;
+  function interestCap(bossNum) { return 20 + 6 * bossNum; }
+  function interestFor(held, bossNum) { return Math.min(interestCap(bossNum), Math.round(held * INTEREST_RATE)); }
+  // Skipping a relic pays more the further you are (about 2-4 stat points' worth).
+  function relicSkipBonus(level) { return 25 + 8 * level; }
+
+  /* ===================== 6. SPRITES ===================== */
+  var spriteCache = {};
+  function mapSprite(key, rows, pal, scale, mirror) {
+    if (spriteCache[key]) return spriteCache[key];
+    var w = rows[0].length * (mirror ? 2 : 1), h = rows.length;
+    var c = document.createElement('canvas'); c.width = w * scale; c.height = h * scale;
+    var x = c.getContext('2d');
+    for (var r = 0; r < h; r++) {
+      var line = rows[r];
+      if (mirror) line = line + line.split('').reverse().join('');
+      for (var q = 0; q < line.length; q++) {
+        var ch = line.charAt(q);
+        if (ch === '.' || !pal[ch]) continue;
+        x.fillStyle = pal[ch]; x.fillRect(q * scale, r * scale, scale, scale);
+      }
+    }
+    spriteCache[key] = c;
+    return c;
+  }
+  var WHITE_PAL = { a: '#fff', b: '#fff', c: '#fff', d: '#fff', e: '#fff', k: '#fff', r: '#fff', y: '#fff' };
+  function bossSprite(def, flash) { return mapSprite('boss_' + def.id + (flash ? '_w' : ''), def.sprite, flash ? WHITE_PAL : def.pal, 6, true); }
+  function hueColor(h) { return 'hsl(' + (Math.floor(h) % 360) + ',100%,60%)'; }
+  function colorOf(skin, t, off) {
+    var it = null;
+    COSMETICS.color.forEach(function (c) { if (c.id === skin.color) it = c; });
+    if (!it) return '#3ae0ff';
+    if (it.hex === 'rainbow') return hueColor(Math.floor(((t || 0) * 120 + (off || 0)) / 10) * 10);
+    return it.hex;
+  }
+  function soulSprite(shape, col, scale) { return mapSprite('soul_' + shape + col + scale, SHAPES[shape] || SHAPES.spark, { X: col }, scale, false); }
+  function drawSoul(ctx, x, y, skin, t, alpha, scale) {
+    scale = scale || 2;
+    var col = colorOf(skin, t, 0);
+    var spr = soulSprite(skin.shape, col, scale);
+    ctx.globalAlpha = alpha === undefined ? 1 : alpha;
+    ctx.drawImage(spr, Math.round(x - spr.width / 2), Math.round(y - spr.height / 2));
+    if (skin.hat !== 'none' && HATS[skin.hat]) {
+      var hd = HATS[skin.hat], hs = mapSprite('hat_' + skin.hat + scale, hd.rows, { X: hd.col }, scale, false);
+      ctx.drawImage(hs, Math.round(x - hs.width / 2), Math.round(y - spr.height / 2 - hs.height + scale));
+    }
+    ctx.globalAlpha = 1;
+  }
+  function drawTrail(ctx, trail, skin, t, scale) {
+    scale = scale || 2;
+    var n = trail.length;
+    for (var i = 0; i < n; i++) {
+      var p = trail[i], k = (i + 1) / (n + 1);
+      if (skin.trail === 'ghost') {
+        var spr = soulSprite(skin.shape, colorOf(skin, t, i * 20), scale);
+        ctx.globalAlpha = k * 0.35;
+        ctx.drawImage(spr, Math.round(p.x - spr.width / 2), Math.round(p.y - spr.height / 2));
+      } else if (skin.trail === 'rainbow') {
+        ctx.globalAlpha = k * 0.9; ctx.fillStyle = hueColor(t * 200 + i * 30);
+        ctx.fillRect(Math.round(p.x - 2 * scale / 2), Math.round(p.y - scale), 2 * scale, 2 * scale);
+      } else if (skin.trail === 'sparkle') {
+        if ((i + Math.floor(t * 20)) % 3 === 0) { ctx.globalAlpha = k; ctx.fillStyle = '#fff'; ctx.fillRect(Math.round(p.x + Math.sin(i * 7 + t * 9) * 6 * scale / 2), Math.round(p.y + Math.cos(i * 5) * 6 * scale / 2), scale, scale); }
+      } else if (skin.trail === 'fire') {
+        ctx.globalAlpha = k * 0.8; ctx.fillStyle = i % 2 ? '#ff9a3a' : '#ffe14a';
+        ctx.fillRect(Math.round(p.x - scale + Math.sin(t * 20 + i) * scale), Math.round(p.y - (n - i) * scale * 0.6), 2 * scale, 2 * scale);
+      }
+    }
+    ctx.globalAlpha = 1;
+  }
+  function shotSprite(style, col) { return mapSprite('shot_' + style + col, SHOTS[style] || SHOTS.dot, { X: col }, 2, false); }
+
+  /* ===================== 7. INPUT ===================== */
+  var keys = { left: 0, right: 0, up: 0, down: 0, fire: 0 };
+  var pressed = { spell: 0, special: 0 };
+  var dragDX = 0, dragDY = 0, drag = null;
+  var KEYMAP = { ArrowLeft: 'left', KeyA: 'left', ArrowRight: 'right', KeyD: 'right', ArrowUp: 'up', KeyW: 'up', ArrowDown: 'down', KeyS: 'down',
+    KeyZ: 'fire', Space: 'fire', KeyJ: 'fire', KeyX: 'spell', KeyK: 'spell', KeyC: 'special', KeyL: 'special', ShiftLeft: 'special', ShiftRight: 'special' };
+  var cheatBuf = '';
+  function typingInInput(e) { var t = e.target; return t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA'); }
+  function clearInput() { keys.left = keys.right = keys.up = keys.down = keys.fire = 0; pressed.spell = pressed.special = 0; dragDX = dragDY = 0; drag = null; }
+
+  document.addEventListener('keydown', function (e) {
+    initAudio();
+    if (typingInInput(e)) { if (e.code === 'Enter' && modalEnter) { e.preventDefault(); modalEnter(); } return; }
+    var a = KEYMAP[e.code];
+    if (GAME.screen === 'fight' && !GAME.paused && a) {
+      e.preventDefault();
+      if (a === 'spell' || a === 'special') { if (!e.repeat) pressed[a] = 1; } // held-key auto-repeat never re-casts
+      else keys[a] = 1;
+      return;
+    }
+    if (e.code === 'Escape' || e.code === 'KeyP') {
+      if (e.repeat) return;
+      if (modalOpen()) { closeModal(); return; }
+      if (GAME.screen === 'fight') { e.preventDefault(); togglePause(); }
+      return;
+    }
+    if (e.code === 'KeyM' && !e.repeat) { setMuted(!muted); return; }
+    if (e.code === 'KeyF' && !e.repeat && PLATFORM === 'desktop' && GAME.screen !== 'fight') { toggleFullscreen(); return; }
+    if (e.code === 'KeyF' && !e.repeat && PLATFORM === 'desktop' && GAME.screen === 'fight' && GAME.paused) { toggleFullscreen(); return; }
+    if (e.code === 'Space' && GAME.screen !== 'fight') e.preventDefault();
+    // Cheat codes can be typed on any menu screen.
+    if (GAME.screen !== 'fight' && S && /^Key[A-Z]$/.test(e.code) && !e.repeat) {
+      cheatBuf = (cheatBuf + e.code.charAt(3)).slice(-12);
+      for (var i = 0; i < CHEATS.length; i++) if (cheatBuf.slice(-CHEATS[i].code.length) === CHEATS[i].code) { cheatBuf = ''; runCheat(CHEATS[i].code); break; }
+    }
+  });
+  document.addEventListener('keyup', function (e) {
+    var a = KEYMAP[e.code];
+    if (a && a !== 'spell' && a !== 'special') keys[a] = 0;
+    if (e.code === 'KeyF' && GAME.screen === 'fight' && !GAME.paused && PLATFORM === 'desktop') { /* F reserved for fullscreen only when paused/menu */ }
+  });
+  window.addEventListener('blur', clearInput);
+
+  var stageEl = document.getElementById('stage');
+  stageEl.addEventListener('pointerdown', function (e) {
+    initAudio();
+    if (GAME.screen !== 'fight' || GAME.paused) return;
+    if (e.pointerType === 'mouse' && PLATFORM === 'desktop') return;
+    if (e.target && e.target.closest && e.target.closest('#topbtns')) return;
+    drag = { id: e.pointerId, lx: e.clientX, ly: e.clientY };
+    try { stageEl.setPointerCapture(e.pointerId); } catch (er) {}
+    e.preventDefault();
+  });
+  stageEl.addEventListener('pointermove', function (e) {
+    if (!drag || e.pointerId !== drag.id) return;
+    var sc = canvasScale();
+    dragDX += (e.clientX - drag.lx) / sc * 1.2;
+    dragDY += (e.clientY - drag.ly) / sc * 1.2;
+    drag.lx = e.clientX; drag.ly = e.clientY;
+    e.preventDefault();
+  });
+  function endDrag(e) { if (drag && e.pointerId === drag.id) drag = null; }
+  stageEl.addEventListener('pointerup', endDrag);
+  stageEl.addEventListener('pointercancel', endDrag);
+
+  function holdButton(el, onDown, onUp) {
+    el.addEventListener('pointerdown', function (e) { initAudio(); e.preventDefault(); try { el.setPointerCapture(e.pointerId); } catch (er) {} onDown(); });
+    var up = function (e) { e.preventDefault(); if (onUp) onUp(); };
+    el.addEventListener('pointerup', up); el.addEventListener('pointercancel', up); el.addEventListener('lostpointercapture', up);
+    el.addEventListener('contextmenu', function (e) { e.preventDefault(); });
+  }
+  var tFire = document.getElementById('tFire'), tSpell = document.getElementById('tSpell'), tSpecial = document.getElementById('tSpecial');
+  holdButton(tFire, function () { keys.fire = 1; tFire.classList.add('down'); }, function () { keys.fire = 0; tFire.classList.remove('down'); });
+  holdButton(tSpell, function () { pressed.spell = 1; });
+  holdButton(tSpecial, function () { pressed.special = 1; });
+  function keyName(what) {
+    var phone = PLATFORM === 'phone';
+    return { move: phone ? 'Drag anywhere' : 'Arrows/WASD', fire: phone ? 'the FIRE button' : 'Z', guard: phone ? 'the GUARD button' : 'Z',
+      spell: phone ? 'SPELL' : 'X', special: phone ? 'SPECIAL' : 'C' }[what];
+  }
+
+  /* ===================== 8. COMBAT ===================== */
+  var GAME = { screen: 'boot', paused: false };
+  var F = null;
+
+  function startFight() {
+    var run = S.run, def = BOSSES[run.level], d = derive(run), df = DIFF_BY_ID[run.diff] || DIFF_BY_ID.normal;
+    run.hp = clamp(run.hp, 1, d.maxHp);
+    run.bank = run.spentThisShop ? 0 : run.shards; // Shards that earn interest this fight
+    F = {
+      def: def, idx: run.level, d: d, run: run, cls: run.cls, df: df, dmg: def.dmg * df.dmg,
+      baseW: def.box[0], baseH: def.box[1], tw: def.box[0], th: def.box[1],
+      bx: CX - def.box[0] / 2, by: BOX_BOTTOM - def.box[1], bw: def.box[0], bh: def.box[1],
+      bossX: CX, bossY: 108, bob: 0, bossHp: Math.round(def.hp * df.hp), bossMax: Math.round(def.hp * df.hp), phase: 0, burnT: 0, burnDps: 0, flash: 0,
+      p: { x: CX, y: BOX_BOTTOM - def.box[1] / 2, hp: run.hp, mana: d.manaMax * 0.5, stam: 100, inv: 0, guarding: false, guardT: 0, broken: false,
+           meter: 0, shotCd: 0, shotN: 0, critCh: 0, moving: false, trail: [], trailT: 0 },
+      bullets: [], shots: [], lasers: [], spells: [], parts: [], floats: [],
+      state: 'intro', st: 0, stDur: 2.8, bossTurns: 0, playerTurns: 0, pats: [],
+      time: 0, hits: 0, grazes: 0, perfects: 0, swUsed: false, lsAcc: 0, quietAcc: 0, quietT: 0, beam: 0, beamDmg: 0, shake: 0,
+      hint: '', hintT: 0, banner: '', bannerT: 0, specialHinted: false, t: 0,
+      quip: (Math.random() < 0.03 ? SILLY_QUIPS[randi(0, SILLY_QUIPS.length - 1)] : def.quip),
+      tips: !!(S.settings.tips && run.level === 0 && !run.tipsDone)
+    };
+    clearInput();
+    GAME.paused = false;
+    initAudio(); musicStart(run.level);
+    setScreen('fight');
+  }
+
+  function enterState(s) {
+    var f = F;
+    f.state = s; f.st = 0;
+    if (s === 'player') {
+      f.stDur = 4.5 + f.d.turnBonus; f.playerTurns++;
+      f.pats = f.def.light ? [newPat('aimed', 0.35, 0.75)] : [];
+      if (f.idx >= f.df.turnFireFrom) {
+        var tl = f.def.phases[f.phase].pats;
+        f.pats.push(newPat(tl[(f.playerTurns + 1) % tl.length], 0.4 + f.idx * 0.025, 0.85));
+      }
+      f.tw = f.baseW; f.th = f.baseH;
+      sfx('turn');
+      if (f.tips && f.playerTurns === 1) showHint('YOUR TURN! Hold ' + keyName('fire') + ' to shoot. Stand under the boss.', 4.5);
+      if (f.tips && f.playerTurns === 2) showHint('Press ' + keyName('spell') + ' to cast a SPELL (uses mana). It also clears bullets near you.', 4.5);
+    } else if (s === 'boss') {
+      f.stDur = f.def.turn; f.bossTurns++;
+      pickBossPatterns();
+      sfx('bossturn');
+      if (f.tips && f.bossTurns === 1) showHint('DODGE! ' + keyName('move') + ' to move. Bullets that brush past you fill SPECIAL.', 5);
+      if (f.tips && f.bossTurns === 2) showHint('Hold ' + keyName('guard') + ' during the boss turn to GUARD (uses stamina).', 5);
+    } else if (s === 'toBoss' || s === 'toPlayer') {
+      f.stDur = 0.9; popAllBullets(); f.pats = [];
+      if (s === 'toPlayer') { f.tw = f.baseW; f.th = f.baseH; }
+    } else if (s === 'dying') {
+      f.stDur = 2.4; popAllBullets(); f.pats = []; f.beam = 0; sfx('bossdie'); f.shake = 8; musicStop();
+    } else if (s === 'dead') {
+      f.stDur = 1.9; f.pats = []; sfx('die'); musicStop();
+      burst(f.p.x, f.p.y, colorOf(S.skin, f.t), 24, 160);
+    }
+  }
+  function pickBossPatterns() {
+    var f = F, ph = f.def.phases[f.phase], list = ph.pats;
+    var id = list[(f.bossTurns - 1) % list.length];
+    f.pats = [newPat(id, 1, 1)];
+    if (f.def.combo || ph.combo) {
+      var id2 = list[f.bossTurns % list.length];
+      if (id2 !== id) f.pats.push(newPat(id2, 0.55, 1));
+    }
+    // Reshape the arena to suit the attacks (main attack counts double).
+    var mw = 0, mh = 0, wt = 0;
+    for (var i = 0; i < f.pats.length; i++) { var bx = PATTERN_BOX[f.pats[i].id] || [1, 1], w = i === 0 ? 2 : 1; mw += bx[0] * w; mh += bx[1] * w; wt += w; }
+    f.tw = clamp(f.baseW * mw / wt, 150, W - 30);
+    f.th = clamp(f.baseH * mh / wt, 110, BOX_BOTTOM - 176);
+  }
+  function newPat(id, dm, sm) { return { id: id, dm: dm, sm: sm, acc: 0.35, t: 0, n: 0, a: Math.random() * 6.28 }; }
+  function every(pt, interval, dt) {
+    pt.acc -= dt; var n = 0;
+    while (pt.acc <= 0) { pt.acc += interval; n++; if (n > 4) { pt.acc = interval; break; } }
+    return n;
+  }
+  function bullet(x, y, vx, vy, o) {
+    o = o || {};
+    var b = { x: x, y: y, vx: vx, vy: vy, r: o.r || 4, life: o.life || 99, t: 0, kind: o.kind || 'n', grazed: false, col: o.col || null };
+    F.bullets.push(b);
+    return b;
+  }
+
+  var PAT = {
+    rain: function (pt, dt, f, spd, dens) {
+      var n = every(pt, 0.28 / dens, dt);
+      while (n--) bullet(rand(f.bx + 6, f.bx + f.bw - 6), f.by - 4, 0, spd * rand(0.9, 1.3));
+    },
+    aimed: function (pt, dt, f, spd, dens) {
+      var n = every(pt, 1.1 / dens, dt);
+      while (n--) {
+        var sx = clamp(f.bossX, f.bx + 10, f.bx + f.bw - 10), sy = f.by - 4;
+        var a = Math.atan2(f.p.y - sy, f.p.x - sx), c = dens > 1.05 ? 5 : 3;
+        for (var i = 0; i < c; i++) { var aa = a + (i - (c - 1) / 2) * 0.2; bullet(sx, sy, Math.cos(aa) * spd * 1.4, Math.sin(aa) * spd * 1.4); }
+      }
+    },
+    ring: function (pt, dt, f, spd, dens) {
+      var n = every(pt, 1.6 / dens, dt);
+      while (n--) {
+        var x, tries = 0;
+        do { x = rand(f.bx + 30, f.bx + f.bw - 30); } while (Math.abs(x - f.p.x) < 60 && ++tries < 8);
+        var y = f.by + 18, cnt = 10 + Math.round(4 * dens), off = Math.random() * 6.28;
+        for (var i = 0; i < cnt; i++) { var a = off + i / cnt * Math.PI * 2; bullet(x, y, Math.cos(a) * spd * 0.9, Math.sin(a) * spd * 0.9); }
+        burst(x, y, f.def.pal.a, 6, 60);
+      }
+    },
+    wave: function (pt, dt, f, spd, dens) {
+      var n = every(pt, 0.34 / dens, dt);
+      while (n--) { var b = bullet(rand(f.bx + 30, f.bx + f.bw - 30), f.by - 4, 0, spd * 0.8, { kind: 'wave' }); b.ox = b.x; b.ph = Math.random() * 6.28; b.amp = rand(18, 34); }
+    },
+    homing: function (pt, dt, f, spd, dens) {
+      var n = every(pt, 1.5 / dens, dt);
+      while (n--) { var b = bullet(rand(f.bx + 10, f.bx + f.bw - 10), f.by - 4, 0, spd * 0.6, { r: 6, kind: 'home', life: 4.2, col: f.def.pal.c || '#fff' }); b.sp = spd * 0.65; }
+    },
+    walls: function (pt, dt, f, spd, dens) {
+      var n = every(pt, 1.7 / dens, dt);
+      while (n--) {
+        var gap = 56, gx = rand(f.bx + 10, f.bx + f.bw - 10 - gap);
+        var fromBottom = f.idx >= 6 && (pt.n++ % 2 === 1);
+        var y = fromBottom ? f.by + f.bh + 4 : f.by - 4, vy = (fromBottom ? -1 : 1) * spd * 0.85;
+        for (var x = f.bx + 5; x < f.bx + f.bw; x += 11) if (x < gx || x > gx + gap) bullet(x, y, 0, vy);
+      }
+    },
+    bombs: function (pt, dt, f, spd, dens) {
+      var n = every(pt, 1.35 / dens, dt);
+      while (n--) { var b = bullet(rand(f.bx + 30, f.bx + f.bw - 30), f.by - 4, 0, spd * 0.55, { r: 7, kind: 'bomb', col: '#ff5a5a' }); b.fuse = rand(0.9, 1.5); b.cnt = 8 + Math.round(dens * 4); b.sp = spd; }
+    },
+    sidesweep: function (pt, dt, f, spd, dens) {
+      var n = every(pt, 0.55 / dens, dt);
+      while (n--) {
+        var left = (pt.n++ % 2) === 0, y0 = rand(f.by + 12, f.by + f.bh - 40);
+        for (var i = 0; i < 3; i++) bullet(left ? f.bx - 4 : f.bx + f.bw + 4, y0 + i * 14, (left ? 1 : -1) * spd * 1.1, 0);
+      }
+    },
+    bouncers: function (pt, dt, f, spd, dens) {
+      var n = every(pt, 1.6 / dens, dt), alive = 0;
+      for (var i = 0; i < f.bullets.length; i++) if (f.bullets[i].kind === 'bounce') alive++;
+      while (n--) {
+        if (alive >= 3 + Math.round(dens * 2)) break;
+        alive++;
+        var a = rand(0.5, 2.6);
+        bullet(rand(f.bx + 20, f.bx + f.bw - 20), f.by + 8, Math.cos(a) * spd, Math.sin(a) * spd, { r: 6, kind: 'bounce', life: 6, col: f.def.pal.c || '#fff' });
+      }
+    },
+    spiral: function (pt, dt, f, spd, dens) {
+      pt.a += dt * 2.4;
+      var n = every(pt, 0.11 / dens, dt), cx = f.bx + f.bw / 2, cy = f.by + 16;
+      while (n--) for (var k = 0; k < 3; k++) { var a = pt.a + k * Math.PI * 2 / 3; bullet(cx, cy, Math.cos(a) * spd * 0.8, Math.sin(a) * spd * 0.8); }
+    },
+    lasers: function (pt, dt, f, spd, dens) {
+      var n = every(pt, 1.5 / dens, dt);
+      while (n--) {
+        var horiz = f.idx >= 6 && Math.random() < 0.4, aim = (pt.n++ % 2 === 0);
+        var pos = horiz ? (aim ? f.p.y : rand(f.by + 10, f.by + f.bh - 10)) : (aim ? f.p.x : rand(f.bx + 10, f.bx + f.bw - 10));
+        f.lasers.push({ horiz: horiz, pos: pos, w: 18, t: 0, warn: 0.9 / Math.min(1.3, f.def.spd), act: 0.35, fired: false });
+      }
+    },
+    cross: function (pt, dt, f, spd, dens) {
+      var n = every(pt, 1.0 / dens, dt);
+      while (n--) {
+        var pts = [[rand(f.bx, f.bx + f.bw), f.by - 4], [rand(f.bx, f.bx + f.bw), f.by + f.bh + 4], [f.bx - 4, rand(f.by, f.by + f.bh)], [f.bx + f.bw + 4, rand(f.by, f.by + f.bh)]];
+        for (var i = 0; i < 4; i++) { var a = Math.atan2(f.p.y - pts[i][1], f.p.x - pts[i][0]); bullet(pts[i][0], pts[i][1], Math.cos(a) * spd, Math.sin(a) * spd); }
+      }
+    }
+  };
+
+  function isLive(s) { return s === 'player' || s === 'boss' || s === 'toBoss' || s === 'toPlayer'; }
+
+  function updateFight(dt) {
+    var f = F;
+    f.t += dt; f.st += dt;
+    if (isLive(f.state)) f.time += dt;
+    var sway = f.def.sway * (f.state === 'player' ? 1 : 0.35);
+    f.bossX = CX + Math.sin(f.t * 0.9) * sway;
+    f.bob = Math.sin(f.t * 2.2) * 4;
+    f.flash = Math.max(0, f.flash - dt);
+    f.shake = Math.max(0, f.shake - dt * 20);
+    f.hintT -= dt; f.bannerT -= dt;
+    // Arena box eases toward its target size; later bosses make it breathe.
+    var pulse = (f.state === 'boss' && (f.idx >= 6 || f.df.id === 'hard' || f.df.id === 'death')) ? Math.sin(f.t * 2.2) * 0.07 : 0;
+    var k = Math.min(1, dt * 5);
+    f.bw += (f.tw * (1 + pulse) - f.bw) * k; f.bh += (f.th * (1 - pulse * 0.6) - f.bh) * k;
+    f.bx = CX - f.bw / 2; f.by = BOX_BOTTOM - f.bh;
+    var lastPhase = f.def.phases.length > 1 ? f.phase === f.def.phases.length - 1 : f.bossHp / f.bossMax < 0.3;
+    MUS.rate = lastPhase ? 1.15 : 1;
+
+    if (f.state === 'intro') { updatePlayer(dt, false); if (f.st >= f.stDur) enterState('player'); }
+    else if (f.state === 'player' || f.state === 'boss') {
+      var ph = f.def.phases[f.phase];
+      var base = 90 * f.def.spd * f.df.spd * (ph.spd || 1) * f.d.bulletSlow;
+      for (var i = 0; i < f.pats.length; i++) { var pt = f.pats[i]; pt.t += dt; PAT[pt.id](pt, dt, f, base * pt.sm, f.def.dens * f.df.dens * pt.dm); }
+      updatePlayer(dt, true);
+      if (f.state === 'player' || f.state === 'boss') { if (f.st >= f.stDur) enterState(f.state === 'player' ? 'toBoss' : 'toPlayer'); }
+    } else if (f.state === 'toBoss' || f.state === 'toPlayer') {
+      updatePlayer(dt, true);
+      if (f.st >= f.stDur) enterState(f.state === 'toBoss' ? 'boss' : 'player');
+    } else if (f.state === 'dying') {
+      if (Math.random() < dt * 9) { burst(f.bossX + rand(-44, 44), f.bossY + rand(-44, 44), pickColor(f.def.pal), 10, 120); sfx('pop'); f.shake = 4; }
+      if (f.st >= f.stDur) { var g = F; fightWon(g); return; }
+    } else if (f.state === 'dead') {
+      if (f.st >= f.stDur) { fightLost(); return; }
+    }
+    if (F !== f) return;
+    updateBullets(dt); updateShots(dt); updateLasers(dt); updateSpells(dt); updateBeamBurn(dt);
+    updateParts(dt);
+  }
+  function pickColor(pal) { var ks = Object.keys(pal); return pal[ks[randi(0, ks.length - 1)]]; }
+
+  function updatePlayer(dt, canAct) {
+    var f = F, p = f.p, d = f.d;
+    if (f.state === 'dead') return;
+    var mx = (keys.right ? 1 : 0) - (keys.left ? 1 : 0), my = (keys.down ? 1 : 0) - (keys.up ? 1 : 0);
+    if (mx && my) { mx *= 0.7071; my *= 0.7071; }
+    // Guard only exists on the boss turn; Z shoots on your turn.
+    var guardWant = keys.fire && f.state === 'boss';
+    if (guardWant && !p.broken && p.stam > 0) {
+      if (!p.guarding) { p.guarding = true; p.guardT = 0; } else p.guardT += dt;
+      p.stam -= d.drain * dt;
+      if (p.stam <= 0) { p.stam = 0; p.guarding = false; p.broken = true; floatText(p.x, p.y - 18, 'GUARD BREAK', '#ff5a6a'); sfx('deny'); }
+    } else {
+      p.guarding = false;
+      if (!guardWant) p.stam = Math.min(100, p.stam + d.stamRegen * dt);
+      if (p.broken && p.stam >= 35) p.broken = false;
+    }
+    var spd = d.speed * (p.guarding ? 0.55 : 1) * (keys.fire && f.state === 'player' ? 0.8 : 1);
+    var ox = p.x, oy = p.y;
+    p.x += mx * spd * dt + dragDX; p.y += my * spd * dt + dragDY;
+    dragDX = 0; dragDY = 0;
+    p.x = clamp(p.x, f.bx + 8, f.bx + f.bw - 8); p.y = clamp(p.y, f.by + 8, f.by + f.bh - 8);
+    p.moving = Math.abs(p.x - ox) + Math.abs(p.y - oy) > 0.2;
+    p.trailT += dt;
+    if (p.trailT > 0.03) { p.trailT = 0; p.trail.push({ x: p.x, y: p.y }); if (p.trail.length > 10) p.trail.shift(); }
+    p.inv -= dt;
+    p.mana = Math.min(d.manaMax, p.mana + d.manaRegen * (f.cls === 'mystic' && p.moving ? 2 : 1) * dt);
+    if (!canAct) { pressed.spell = pressed.special = 0; return; }
+    p.shotCd -= dt;
+    if (keys.fire && f.state === 'player' && p.shotCd <= 0) { p.shotCd = 1 / d.fireRate; fireShot(); }
+    if (pressed.spell) { pressed.spell = 0; castSpell(); }
+    if (pressed.special) { pressed.special = 0; useSpecial(); }
+  }
+
+  function fireShot() {
+    var f = F, p = f.p, d = f.d;
+    p.shotN++;
+    var dmg = d.shotDmg, crit = false;
+    if (p.critCh > 0) { crit = true; p.critCh--; } else if (Math.random() < d.crit) crit = true;
+    if (f.cls === 'striker' && p.shotN % 5 === 0) dmg *= 2;
+    if (f.cls === 'gambler') dmg *= rand(0.3, 1.7);
+    if (crit) dmg *= 2;
+    var angles = (d.perks.swift && p.shotN % 6 === 0) ? [-0.14, 0, 0.14] : [0];
+    var offs = d.twin ? [-6, 6] : [0];
+    for (var i = 0; i < angles.length; i++) for (var j = 0; j < offs.length; j++)
+      f.shots.push({ x: p.x + offs[j], y: p.y - 8, vx: Math.sin(angles[i]) * 560, vy: -Math.cos(angles[i]) * 560, dmg: dmg, crit: crit });
+    sfx('shoot');
+  }
+  function castSpell() {
+    var f = F, p = f.p, d = f.d;
+    var free = d.perks.luckyspell && Math.random() < 0.3;
+    if (!free && p.mana < d.spellCost) { floatText(p.x, p.y - 18, 'NO MANA', '#8a8aff'); sfx('deny'); return; }
+    if (!free) p.mana -= d.spellCost; else floatText(p.x, p.y - 26, 'FREE!', '#ffe14a');
+    var crit = Math.random() < d.crit, dmg = d.spellDmg * (crit ? 2 : 1);
+    var col = CLASS_BY_ID[f.cls].color;
+    f.spells.push({ x: p.x, y: p.y - 6, dmg: dmg, crit: crit, col: col, r: 7, sp: 460, spin: 0 });
+    var rad = f.cls === 'mystic' ? 90 : 60;
+    for (var i = f.bullets.length - 1; i >= 0; i--) {
+      var b = f.bullets[i], dx = b.x - p.x, dy = b.y - p.y;
+      if (dx * dx + dy * dy < rad * rad) { burst(b.x, b.y, col, 2, 50); f.bullets.splice(i, 1); }
+    }
+    f.parts.push({ ring: true, x: p.x, y: p.y, r: 4, maxR: rad, life: 0.3, t: 0, col: col });
+    if (f.cls === 'paladin') heal(3);
+    floatText(p.x, p.y - 18, CLASS_BY_ID[f.cls].spell.name, col);
+    sfx('spell');
+  }
+  function useSpecial() {
+    var f = F, p = f.p;
+    if (p.meter < 100) return;
+    p.meter = 0;
+    f.beam = 1.4; f.beamDmg = (40 + f.bossMax * 0.06) * f.d.specialMult;
+    popAllBullets(); f.lasers = [];
+    p.inv = Math.max(p.inv, 1.6);
+    f.shake = 7; sfx('special');
+    banner('SPECIAL!');
+    S.stats.specials++;
+    if (S.stats.specials >= 25) unlockAch('showoff');
+  }
+  function heal(n) { var p = F.p; var before = p.hp; p.hp = Math.min(F.d.maxHp, p.hp + n); if (p.hp > before) floatText(p.x + 10, p.y - 10, '+' + Math.round(p.hp - before), '#6aff8a'); }
+
+  function dealBoss(amount, crit, x, y, quiet, col) {
+    var f = F;
+    if (!f || !(f.state === 'player' || f.state === 'boss' || f.state === 'toBoss' || f.state === 'toPlayer')) return;
+    if (amount <= 0) return;
+    f.bossHp -= amount;
+    if (f.d.lifesteal) { f.lsAcc += amount; while (f.lsAcc >= 60) { f.lsAcc -= 60; heal(f.d.lifesteal); } }
+    if (quiet) { f.quietAcc += amount; }
+    else {
+      f.flash = 0.06;
+      floatText(x + rand(-8, 8), y, fmt(Math.max(1, Math.round(amount))) + (crit ? '!' : ''), col || (crit ? '#ffe14a' : '#ffffff'), crit ? 1.4 : 1);
+      sfx(crit ? 'crit' : 'hit');
+    }
+    checkPhase();
+    if (f.bossHp <= 0) { f.bossHp = 0; enterState('dying'); }
+  }
+  function checkPhase() {
+    var f = F, next = f.def.phases[f.phase + 1];
+    if (next && f.bossHp > 0 && f.bossHp / f.bossMax <= next.at) {
+      f.phase++;
+      popAllBullets(); f.lasers = [];
+      banner('PHASE ' + (f.phase + 1));
+      sfx('phase'); f.shake = 6;
+      if (f.state === 'boss') pickBossPatterns();
+    }
+  }
+  function hurt(dmg) {
+    var f = F, p = f.p;
+    if (p.inv > 0 || godMode) return;
+    var amt = dmg * (1 - f.d.dr);
+    p.hp -= amt; p.inv = 1.0; f.hits++; S.stats.hits++;
+    f.shake = 6; sfx('hurt');
+    floatText(p.x, p.y - 14, '-' + Math.ceil(amt), '#ff4a5a');
+    if (S.stats.hits >= 100) unlockAch('butter');
+    if (p.hp <= 0) {
+      if (f.d.perks.secondwind && !f.swUsed) { f.swUsed = true; p.hp = 1; p.inv = 1.5; banner('SECOND WIND!'); unlockAch('second_wind'); }
+      else if (f.run.livesUsed < f.d.lives) { f.run.livesUsed++; p.hp = f.d.maxHp * 0.5; p.inv = 2; popAllBullets(); banner('SPARE SPARK!'); }
+      else { p.hp = 0; enterState('dead'); }
+    }
+  }
+  function blockBullet(b) {
+    var f = F, p = f.p, d = f.d;
+    var perfect = p.guardT < 0.22;
+    if (perfect) {
+      f.perfects++; sfx('perfect'); floatText(p.x, p.y - 20, 'PERFECT', '#6ad8ff');
+      if (f.cls === 'warden') heal(1);
+      if (f.perfects >= 10) unlockAch('parry');
+      if (d.perks.mirror) f.spells.push({ x: b.x, y: b.y, dmg: d.shotDmg * 3, crit: false, col: '#6ad8ff', r: 4, sp: 520, spin: 0 });
+    } else {
+      sfx('block');
+      p.hp = Math.max(1, p.hp - b.dmgChip);
+      if (d.perks.mirror) f.spells.push({ x: b.x, y: b.y, dmg: d.shotDmg * 1.2, crit: false, col: '#6ad8ff', r: 3, sp: 520, spin: 0, quiet: true });
+    }
+    burst(b.x, b.y, '#6ad8ff', 3, 60);
+  }
+
+  function updateBullets(dt) {
+    var f = F, p = f.p, d = f.d, live = f.state === 'player' || f.state === 'boss';
+    var chip = f.dmg * (1 - d.dr) * 0.25;
+    for (var i = f.bullets.length - 1; i >= 0; i--) {
+      var b = f.bullets[i];
+      b.t += dt;
+      if (b.kind === 'wave') { b.y += b.vy * dt; b.x = b.ox + Math.sin(b.t * 3 + b.ph) * b.amp; }
+      else if (b.kind === 'home') {
+        var want = Math.atan2(p.y - b.y, p.x - b.x), cur = Math.atan2(b.vy, b.vx);
+        var diff = ((want - cur + Math.PI * 3) % (Math.PI * 2)) - Math.PI;
+        cur += clamp(diff, -1.6 * dt, 1.6 * dt);
+        b.vx = Math.cos(cur) * b.sp; b.vy = Math.sin(cur) * b.sp;
+        b.x += b.vx * dt; b.y += b.vy * dt;
+      } else { b.x += b.vx * dt; b.y += b.vy * dt; }
+      if (b.kind === 'bounce') {
+        if (b.x < f.bx + b.r) { b.x = f.bx + b.r; b.vx = Math.abs(b.vx); }
+        if (b.x > f.bx + f.bw - b.r) { b.x = f.bx + f.bw - b.r; b.vx = -Math.abs(b.vx); }
+        if (b.y < f.by + b.r) { b.y = f.by + b.r; b.vy = Math.abs(b.vy); }
+        if (b.y > f.by + f.bh - b.r) { b.y = f.by + f.bh - b.r; b.vy = -Math.abs(b.vy); }
+      }
+      if (b.kind === 'bomb') {
+        b.fuse -= dt;
+        if (b.fuse <= 0) {
+          f.bullets.splice(i, 1);
+          var off = Math.random() * 6.28;
+          for (var k = 0; k < b.cnt; k++) { var a = off + k / b.cnt * Math.PI * 2; bullet(b.x, b.y, Math.cos(a) * b.sp, Math.sin(a) * b.sp); }
+          burst(b.x, b.y, '#ff5a5a', 8, 90); sfx('pop');
+          continue;
+        }
+      }
+      if (b.t > b.life || b.x < f.bx - 30 || b.x > f.bx + f.bw + 30 || b.y < f.by - 30 || b.y > f.by + f.bh + 30) { f.bullets.splice(i, 1); continue; }
+      if (!live) continue;
+      var dx = b.x - p.x, dy = b.y - p.y, d2 = dx * dx + dy * dy;
+      if (p.guarding) {
+        var sr = d.shieldR + b.r;
+        if (d2 < sr * sr) { b.dmgChip = chip; blockBullet(b); f.bullets.splice(i, 1); continue; }
+      }
+      var hr = d.hitR + b.r;
+      if (d2 < hr * hr) {
+        if (p.inv <= 0) { hurt(f.dmg); f.bullets.splice(i, 1); if (F !== f || f.state === 'dead') return; }
+        continue;
+      }
+      var gr = hr + 14;
+      if (!b.grazed && d2 < gr * gr && p.inv <= 0) {
+        b.grazed = true;
+        var wasFull = p.meter >= 100;
+        p.meter = Math.min(100, p.meter + 3 * d.grazeMult);
+        f.grazes++; S.stats.grazes++;
+        if (d.perks.grazecrit) p.critCh = Math.min(8, p.critCh + 1);
+        f.parts.push({ x: (b.x + p.x) / 2, y: (b.y + p.y) / 2, vx: 0, vy: -20, life: 0.25, t: 0, col: '#ffffff', size: 2 });
+        sfx('graze');
+        if (f.grazes >= 50) unlockAch('grazer');
+        if (!wasFull && p.meter >= 100) {
+          floatText(p.x, p.y - 22, 'SPECIAL READY', '#ffe14a'); sfx('ready');
+          if (!f.specialHinted && (f.tips || S.stats.specials === 0)) { f.specialHinted = true; showHint('SPECIAL is full! Press ' + keyName('special') + ' for a huge beam that clears bullets.', 5); }
+        }
+      }
+    }
+  }
+  function updateShots(dt) {
+    var f = F;
+    for (var i = f.shots.length - 1; i >= 0; i--) {
+      var s = f.shots[i];
+      s.x += s.vx * dt; s.y += s.vy * dt;
+      var half = 46 * bossScale;
+      if (Math.abs(s.x - f.bossX) < half && s.y < f.bossY + half && s.y > f.bossY - half - 4 && f.state !== 'dying' && f.state !== 'dead') {
+        dealBoss(s.dmg, s.crit, s.x, s.y - 6);
+        if (F !== f) return;
+        if (f.cls === 'spellblade') f.p.mana = Math.min(f.d.manaMax, f.p.mana + 0.8);
+        if (f.d.burn) { f.burnT = 2; f.burnDps = Math.max(f.burnDps * 0.97, s.dmg * 0.5); }
+        f.parts.push({ x: s.x, y: s.y, vx: rand(-30, 30), vy: rand(-40, 0), life: 0.2, t: 0, col: '#ffffff', size: 2 });
+        f.shots.splice(i, 1);
+        continue;
+      }
+      if (s.y < -20 || s.x < -20 || s.x > W + 20) f.shots.splice(i, 1);
+    }
+  }
+  function updateLasers(dt) {
+    var f = F, p = f.p, live = f.state === 'player' || f.state === 'boss';
+    for (var i = f.lasers.length - 1; i >= 0; i--) {
+      var l = f.lasers[i];
+      l.t += dt;
+      if (l.t >= l.warn && !l.fired) { l.fired = true; sfx('laser'); }
+      if (l.t >= l.warn + l.act) { f.lasers.splice(i, 1); continue; }
+      if (live && l.t >= l.warn) {
+        var dist = l.horiz ? Math.abs(p.y - l.pos) : Math.abs(p.x - l.pos);
+        if (dist < l.w / 2 + f.d.hitR * 0.5) { hurt(f.dmg); if (F !== f || f.state === 'dead') return; }
+      }
+    }
+  }
+  function updateSpells(dt) {
+    var f = F;
+    for (var i = f.spells.length - 1; i >= 0; i--) {
+      var s = f.spells[i];
+      var dx = f.bossX - s.x, dy = (f.bossY + f.bob) - s.y, dist = Math.sqrt(dx * dx + dy * dy);
+      s.spin += dt * 10;
+      if (dist < 30 || f.state === 'dying' || f.state === 'dead') {
+        if (f.state !== 'dying' && f.state !== 'dead') {
+          dealBoss(s.dmg, s.crit, f.bossX, f.bossY - 30, !!s.quiet, s.quiet ? null : s.col);
+          if (F !== f) return;
+          burst(s.x, s.y, s.col, 6, 90);
+        }
+        f.spells.splice(i, 1); continue;
+      }
+      s.x += dx / dist * s.sp * dt; s.y += dy / dist * s.sp * dt;
+      if (Math.random() < 0.5) f.parts.push({ x: s.x, y: s.y, vx: rand(-20, 20), vy: rand(-20, 20), life: 0.3, t: 0, col: s.col, size: 2 });
+    }
+  }
+  function updateBeamBurn(dt) {
+    var f = F;
+    if (f.beam > 0) {
+      f.beam -= dt;
+      dealBoss(f.beamDmg / 1.4 * dt, false, f.bossX, f.bossY, true);
+      if (F !== f) return;
+      if (Math.random() < 0.7) f.parts.push({ x: f.bossX + rand(-30, 30), y: f.bossY + rand(-30, 30), vx: rand(-80, 80), vy: rand(-80, 80), life: 0.4, t: 0, col: colorOf(S.skin, f.t), size: 3 });
+    }
+    if (f.burnT > 0) {
+      f.burnT -= dt;
+      dealBoss(f.burnDps * dt, false, f.bossX, f.bossY, true);
+      if (F !== f) return;
+      if (Math.random() < dt * 12) f.parts.push({ x: f.bossX + rand(-36, 36), y: f.bossY + rand(-10, 40), vx: 0, vy: -50, life: 0.5, t: 0, col: Math.random() < 0.5 ? '#ff9a3a' : '#ffe14a', size: 3 });
+      if (f.burnT <= 0) f.burnDps = 0;
+    }
+    f.quietT -= dt;
+    if (f.quietT <= 0) { f.quietT = 0.4; if (f.quietAcc >= 1) { floatText(f.bossX + rand(-20, 20), f.bossY - 40, fmt(Math.round(f.quietAcc)), '#ffb45a'); f.flash = 0.05; } f.quietAcc = 0; }
+  }
+  function updateParts(dt) {
+    var f = F;
+    for (var i = f.parts.length - 1; i >= 0; i--) {
+      var q = f.parts[i]; q.t += dt;
+      if (q.t >= q.life) { f.parts.splice(i, 1); continue; }
+      if (q.ring) { q.r = q.maxR * (q.t / q.life); continue; }
+      q.x += q.vx * dt; q.y += q.vy * dt;
+    }
+    for (var j = f.floats.length - 1; j >= 0; j--) { var fl = f.floats[j]; fl.t += dt; fl.y -= 30 * dt; if (fl.t > 0.9) f.floats.splice(j, 1); }
+  }
+  function burst(x, y, col, n, spd) {
+    if (!F) return;
+    for (var i = 0; i < n; i++) { var a = Math.random() * 6.28, v = rand(0.3, 1) * (spd || 80); F.parts.push({ x: x, y: y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, life: rand(0.25, 0.6), t: 0, col: col, size: randi(2, 3) }); }
+    if (F.parts.length > 400) F.parts.splice(0, F.parts.length - 400);
+  }
+  function popAllBullets() {
+    var f = F;
+    for (var i = 0; i < f.bullets.length; i += 2) f.parts.push({ x: f.bullets[i].x, y: f.bullets[i].y, vx: rand(-30, 30), vy: rand(-30, 30), life: 0.25, t: 0, col: '#ffffff', size: 2 });
+    f.bullets = []; f.lasers = [];
+  }
+  function floatText(x, y, text, col, size) {
+    var f = F; if (!f) return;
+    f.floats.push({ x: x, y: y, text: text, col: col, size: size || 1, t: 0 });
+    if (f.floats.length > 36) f.floats.shift();
+  }
+  function showHint(text, dur) { F.hint = text; F.hintT = dur; }
+  function banner(text) { F.banner = text; F.bannerT = 1.4; }
+
+  /* ===================== 9. RENDER ===================== */
+  var cv = document.getElementById('cv'), ctx = cv.getContext('2d');
+  ctx.imageSmoothingEnabled = false;
+  var STARS = [];
+  for (var si = 0; si < 70; si++) STARS.push({ x: Math.random() * W, y: Math.random() * H, s: Math.random() < 0.15 ? 2 : 1, v: rand(6, 22) });
+
+  function txt(s, x, y, size, col, align) {
+    ctx.font = (size || 8) + 'px ' + FONT;
+    ctx.textAlign = align || 'left'; ctx.textBaseline = 'top';
+    ctx.fillStyle = '#000'; ctx.fillText(s, Math.round(x) + 1, Math.round(y) + 1);
+    ctx.fillStyle = col || '#fff'; ctx.fillText(s, Math.round(x), Math.round(y));
+  }
+  function bar(x, y, w, h, frac, col, back) {
+    ctx.fillStyle = back || '#300'; ctx.fillRect(x, y, w, h);
+    ctx.fillStyle = col; ctx.fillRect(x, y, Math.round(w * clamp(frac, 0, 1)), h);
+  }
+  function drawStars(t, tint) {
+    for (var i = 0; i < STARS.length; i++) {
+      var s = STARS[i], y = (s.y + t * s.v) % H;
+      ctx.fillStyle = i % 5 === 0 ? tint : '#555';
+      ctx.globalAlpha = 0.6; ctx.fillRect(Math.round(s.x), Math.round(y), s.s, s.s);
+    }
+    ctx.globalAlpha = 1;
+  }
+  function wrapLines(s, max) {
+    var words = s.split(' '), lines = [], cur = '';
+    for (var i = 0; i < words.length; i++) { var tst = cur ? cur + ' ' + words[i] : words[i]; if (tst.length > max && cur) { lines.push(cur); cur = words[i]; } else cur = tst; }
+    if (cur) lines.push(cur);
+    return lines;
+  }
+
+  function drawFight() {
+    var f = F, p = f.p, d = f.d;
+    ctx.save();
+    ctx.fillStyle = '#000'; ctx.fillRect(0, 0, W, H);
+    if (f.shake > 0) ctx.translate(Math.round(rand(-f.shake, f.shake)), Math.round(rand(-f.shake, f.shake)));
+    drawStars(f.t, f.def.pal.a);
+
+    // Boss
+    if (!(f.state === 'dying' && Math.floor(f.st * 12) % 2 === 0)) {
+      var spr = bossSprite(f.def, f.flash > 0);
+      var bw = spr.width * bossScale, bh = spr.height * bossScale;
+      var alpha = f.state === 'dying' ? Math.max(0, 1 - f.st / f.stDur) : 1;
+      ctx.globalAlpha = alpha;
+      ctx.drawImage(spr, Math.round(f.bossX - bw / 2), Math.round(f.bossY + f.bob - bh / 2), bw, bh);
+      ctx.globalAlpha = 1;
+    }
+    // Boss HP bar
+    txt(f.def.name.toUpperCase(), 16, 12, 8, '#fff');
+    txt('BOSS ' + (f.idx + 1) + '/10 ' + f.df.name.toUpperCase(), W - 16, 12, 8, f.df.color, 'right');
+    bar(16, 26, W - 32, 8, f.bossHp / f.bossMax, f.phase > 0 ? '#ff5a3a' : '#ffe14a', '#331');
+    for (var ph = 1; ph < f.def.phases.length; ph++) { ctx.fillStyle = '#000'; ctx.fillRect(16 + Math.round((W - 32) * f.def.phases[ph].at) - 1, 26, 2, 8); }
+    if (f.burnT > 0) txt('BURN', 16, 38, 8, '#ff9a3a');
+
+    // Box
+    var turnCol = (f.state === 'player' || f.state === 'toPlayer') ? '#ffe14a' : '#ffffff';
+    var rbx = Math.round(f.bx), rby = Math.round(f.by), rbw = Math.round(f.bw), rbh = Math.round(f.bh);
+    ctx.fillStyle = '#000'; ctx.fillRect(rbx, rby, rbw, rbh);
+    ctx.strokeStyle = turnCol; ctx.lineWidth = 3; ctx.strokeRect(rbx - 1.5, rby - 1.5, rbw + 3, rbh + 3);
+
+    ctx.save();
+    ctx.beginPath(); ctx.rect(rbx, rby, rbw, rbh); ctx.clip();
+    // Lasers
+    for (var li = 0; li < f.lasers.length; li++) {
+      var l = f.lasers[li], on = l.t >= l.warn;
+      if (on) { ctx.fillStyle = '#ffffff'; ctx.globalAlpha = 0.95; }
+      else { ctx.fillStyle = '#ff3a3a'; ctx.globalAlpha = 0.25 + 0.25 * Math.sin(l.t * 30); }
+      var w = on ? l.w : 2;
+      if (l.horiz) ctx.fillRect(f.bx, Math.round(l.pos - w / 2), f.bw, w); else ctx.fillRect(Math.round(l.pos - w / 2), f.by, w, f.bh);
+      if (!on) { ctx.globalAlpha = 0.12; if (l.horiz) ctx.fillRect(f.bx, Math.round(l.pos - l.w / 2), f.bw, l.w); else ctx.fillRect(Math.round(l.pos - l.w / 2), f.by, l.w, f.bh); }
+      ctx.globalAlpha = 1;
+    }
+    // Bullets
+    for (var bi = 0; bi < f.bullets.length; bi++) {
+      var b = f.bullets[bi];
+      var c = b.col || '#ffffff';
+      if (b.kind === 'bomb') c = (b.fuse < 0.45 && Math.floor(b.t * 20) % 2) ? '#ffffff' : '#ff4a4a';
+      ctx.fillStyle = c;
+      ctx.beginPath(); ctx.arc(Math.round(b.x), Math.round(b.y), b.r, 0, 6.2832); ctx.fill();
+      if (b.kind === 'home' || b.kind === 'bounce') { ctx.fillStyle = '#000'; ctx.fillRect(Math.round(b.x) - 1, Math.round(b.y) - 1, 2, 2); }
+    }
+    // Player spark
+    if (f.state !== 'dead') {
+      drawTrail(ctx, p.trail, S.skin, f.t, 2);
+      var blink = p.inv > 0 && Math.floor(f.t * 20) % 2 === 0;
+      drawSoul(ctx, p.x, p.y, S.skin, f.t, blink ? 0.3 : 1, 2);
+      if (p.guarding) {
+        ctx.strokeStyle = p.guardT < 0.22 ? '#ffffff' : '#6aff8a'; ctx.lineWidth = 2;
+        ctx.globalAlpha = 0.5 + 0.5 * (p.stam / 100);
+        ctx.beginPath(); ctx.arc(p.x, p.y, d.shieldR, 0, 6.2832); ctx.stroke(); ctx.globalAlpha = 1;
+      }
+    }
+    ctx.restore();
+
+    // Player shots
+    var scol = colorOf(S.skin, f.t, 0);
+    for (var shi = 0; shi < f.shots.length; shi++) {
+      var s = f.shots[shi], ss = shotSprite(S.skin.shot, s.crit ? '#ffe14a' : scol);
+      ctx.drawImage(ss, Math.round(s.x - ss.width / 2), Math.round(s.y - ss.height / 2));
+    }
+    // Spells
+    for (var spi = 0; spi < f.spells.length; spi++) {
+      var sp = f.spells[spi];
+      ctx.save(); ctx.translate(Math.round(sp.x), Math.round(sp.y)); ctx.rotate(sp.spin);
+      ctx.fillStyle = sp.col; ctx.fillRect(-sp.r, -2, sp.r * 2, 4); ctx.fillRect(-2, -sp.r, 4, sp.r * 2);
+      ctx.fillStyle = '#fff'; ctx.fillRect(-2, -2, 4, 4);
+      ctx.restore();
+    }
+    // Beam
+    if (f.beam > 0) {
+      var bwid = 18 + Math.sin(f.t * 40) * 5;
+      ctx.strokeStyle = scol; ctx.lineWidth = bwid; ctx.globalAlpha = 0.8;
+      ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(f.bossX, f.bossY + f.bob); ctx.stroke();
+      ctx.strokeStyle = '#fff'; ctx.lineWidth = bwid * 0.35; ctx.globalAlpha = 1;
+      ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(f.bossX, f.bossY + f.bob); ctx.stroke();
+    }
+    // Particles
+    for (var pi = 0; pi < f.parts.length; pi++) {
+      var q = f.parts[pi];
+      ctx.globalAlpha = 1 - q.t / q.life;
+      if (q.ring) { ctx.strokeStyle = q.col; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(q.x, q.y, q.r, 0, 6.2832); ctx.stroke(); }
+      else { ctx.fillStyle = q.col; ctx.fillRect(Math.round(q.x), Math.round(q.y), q.size, q.size); }
+    }
+    ctx.globalAlpha = 1;
+    // Floating numbers
+    for (var fi = 0; fi < f.floats.length; fi++) {
+      var fl = f.floats[fi];
+      ctx.globalAlpha = clamp(1.4 - fl.t * 1.5, 0, 1);
+      txt(fl.text, fl.x, fl.y, fl.size > 1.2 ? 16 : 8, fl.col, 'center');
+    }
+    ctx.globalAlpha = 1;
+
+    drawHud();
+
+    if (f.hintT > 0 && f.hint) {
+      var lines = wrapLines(f.hint, Math.floor((W - 96) / 8));
+      ctx.globalAlpha = clamp(f.hintT * 2, 0, 1);
+      ctx.fillStyle = 'rgba(0,0,0,0.85)'; ctx.fillRect(40, 44, W - 80, 12 + lines.length * 13);
+      ctx.strokeStyle = '#ffe14a'; ctx.lineWidth = 2; ctx.strokeRect(40, 44, W - 80, 12 + lines.length * 13);
+      for (var hl = 0; hl < lines.length; hl++) txt(lines[hl], W / 2, 51 + hl * 13, 8, '#ffe14a', 'center');
+      ctx.globalAlpha = 1;
+    }
+    if (f.bannerT > 0 && f.banner) {
+      ctx.globalAlpha = clamp(f.bannerT * 2, 0, 1);
+      txt(f.banner, W / 2, f.by + f.bh / 2 - 8, 16, '#ffe14a', 'center');
+      ctx.globalAlpha = 1;
+    }
+    if (f.state === 'toBoss' || f.state === 'toPlayer') {
+      txt(f.state === 'toBoss' ? 'BOSS TURN' : 'YOUR TURN', W / 2, f.by + f.bh / 2 - 8, 16, f.state === 'toBoss' ? '#ffffff' : '#ffe14a', 'center');
+    }
+    if (f.state === 'intro') {
+      var k = Math.min(1, f.st * 3);
+      ctx.fillStyle = 'rgba(0,0,0,0.8)'; ctx.fillRect(0, 170, W, 120);
+      txt('BOSS ' + (f.idx + 1) + ' OF 10', W / 2, 184, 8, '#aaa', 'center');
+      ctx.globalAlpha = k; txt(f.def.name.toUpperCase(), W / 2, 202, 16, '#ffe14a', 'center');
+      txt(f.def.title, W / 2, 228, 8, '#ccc', 'center'); ctx.globalAlpha = 1;
+      var shown = f.quip.slice(0, Math.floor(Math.max(0, f.st - 0.5) * 40));
+      var ql = wrapLines(shown, Math.floor((W - 64) / 8));
+      for (var qi = 0; qi < ql.length; qi++) txt(ql[qi], W / 2, 250 + qi * 12, 8, '#fff', 'center');
+    }
+    if (f.state === 'dying' && f.st > 1.2) txt('BOSS DEFEATED!', W / 2, 200, 16, '#ffe14a', 'center');
+    if (f.state === 'dead' && f.st > 0.6) txt('YOUR SPARK FADED', W / 2, 200, 16, '#ff4a5a', 'center');
+    ctx.restore();
+  }
+
+  function drawHud() {
+    var f = F, p = f.p, d = f.d, PH = PLATFORM === 'phone';
+    var lx = PH ? 16 : 24, y0 = PH ? BOX_BOTTOM + 14 : 410, rx = PH ? 16 : 400, ry = PH ? y0 + 62 : 410, rw = PH ? W - 32 : 216;
+    var cls = CLASS_BY_ID[f.cls];
+    txt(String(S.name).slice(0, 10).toUpperCase() + '  LV ' + soulLevel(f.run.stats) + '  ' + cls.name.toUpperCase(), lx, y0, 8, cls.color);
+    txt('HP', lx, y0 + 16, 8, '#fff');
+    bar(lx + 28, y0 + 16, 150, 9, p.hp / d.maxHp, p.hp / d.maxHp < 0.3 ? '#ff4a4a' : '#ffe14a', '#500');
+    txt(Math.ceil(p.hp) + '/' + d.maxHp, lx + 184, y0 + 17, 8, '#fff');
+    txt('MP', lx, y0 + 31, 8, '#c07aff');
+    bar(lx + 28, y0 + 31, 150, 7, p.mana / d.manaMax, '#9a5aff', '#213');
+    txt(Math.floor(p.mana) + '/' + d.manaMax, lx + 184, y0 + 31, 8, '#c07aff');
+    txt('ST', lx, y0 + 44, 8, '#6aff8a');
+    bar(lx + 28, y0 + 44, 150, 5, p.stam / 100, p.broken ? '#ff5a6a' : '#6aff8a', '#132');
+    var lives = d.lives - f.run.livesUsed;
+    if (lives > 0) txt(SPARKC + ' x' + lives, lx + 184, y0 + 43, 8, '#ff7a8a');
+
+    // Right side: special + turn
+    var full = p.meter >= 100;
+    txt(full ? 'SPECIAL READY! [' + (PLATFORM === 'phone' ? 'BTN' : 'C') + ']' : 'SPECIAL', rx, ry, 8, full ? (Math.floor(f.t * 6) % 2 ? '#ffe14a' : '#fff') : '#aaa');
+    bar(rx, ry + 14, rw, 8, p.meter / 100, full ? '#ffe14a' : '#b36bff', '#212');
+    var label = '', col = '#fff', frac = 0;
+    if (f.state === 'player') { label = 'YOUR TURN'; col = '#ffe14a'; frac = 1 - f.st / f.stDur; }
+    else if (f.state === 'boss') { label = 'BOSS TURN - DODGE!'; col = '#fff'; frac = 1 - f.st / f.stDur; }
+    else if (f.state === 'intro') { label = 'GET READY'; }
+    txt(label, rx, ry + 30, 8, col);
+    if (frac > 0) bar(rx, ry + 42, rw, 4, frac, col, '#222');
+    if (p.critCh > 0) txt('CRIT x' + p.critCh, rx + rw, ry + 30, 8, '#ffe14a', 'right');
+    txt(fmtTime(f.time), rx + rw, ry + 48, 8, '#666', 'right');
+  }
+
+  // Menu background: drifting stars and a few floating sparks.
+  var menuT = 0, spinUntil = 0;
+  function drawMenuBg(dt) {
+    menuT += dt;
+    ctx.fillStyle = '#000'; ctx.fillRect(0, 0, W, H);
+    drawStars(menuT, '#3ae0ff');
+    var skin = S ? S.skin : { shape: 'spark', color: 'cyan', trail: 'none', hat: 'none', shot: 'dot' };
+    for (var i = 0; i < 6; i++) {
+      var x = (i * 117 + menuT * (10 + i * 3)) % (W + 40) - 20, y = 80 + ((i * 71) % (H - 160)) + Math.sin(menuT + i) * 12;
+      ctx.globalAlpha = 0.18; drawSoul(ctx, x, y, skin, menuT, 0.18, 2);
+    }
+    ctx.globalAlpha = 1;
+    if (menuT < spinUntil) {
+      ctx.save(); ctx.translate(W / 2, H / 2); ctx.rotate(menuT * 8);
+      drawSoul(ctx, 0, 0, skin, menuT, 1, 6); ctx.restore();
+      txt('wheeee!', W / 2, H / 2 + 50, 16, '#ffe14a', 'center');
+    }
+  }
+
+  /* ===================== 10. UI SCREENS ===================== */
+  var uiEl = document.getElementById('ui');
+  var modalEl = document.getElementById('modal'), modalBox = document.getElementById('modalBox');
+  var pauseBtn = document.getElementById('btnPause');
+  var rerender = null;
+  var lastBuy = 0;
+  var sbStart = 0;       // sandbox: starting boss
+  var SHOP = { pend: {} };
+  var modalBtns = [], modalEnter = null;
+
+  function setScreen(name, html) {
+    GAME.screen = name;
+    if (name === 'fight') {
+      uiEl.classList.remove('show'); uiEl.innerHTML = '';
+      document.body.classList.add('fighting');
+      pauseBtn.style.display = '';
+    } else {
+      document.body.classList.remove('fighting');
+      uiEl.innerHTML = '<div class="panel">' + html + '</div>';
+      uiEl.classList.add('show'); uiEl.scrollTop = 0;
+      pauseBtn.style.display = 'none';
+    }
+    fit();
+  }
+  function debounced() { var now = Date.now(); if (now - lastBuy < 120) return true; lastBuy = now; return false; }
+  function toast(html, ms) {
+    var box = document.getElementById('toasts'), el = document.createElement('div');
+    el.className = 'toast'; el.innerHTML = html; box.appendChild(el);
+    setTimeout(function () { if (el.parentNode) el.parentNode.removeChild(el); }, ms || 3200);
+    while (box.children.length > 4) box.removeChild(box.firstChild);
+  }
+  function pop(text) {
+    var el = document.createElement('div'); el.className = 'pop'; el.textContent = text; document.body.appendChild(el);
+    setTimeout(function () { if (el.parentNode) el.parentNode.removeChild(el); }, 1200);
+  }
+  function openModal(html, btns, onEnter) {
+    modalBtns = btns || []; modalEnter = onEnter || null;
+    modalBox.innerHTML = html; modalEl.classList.add('show');
+    var inp = modalBox.querySelector('input'); if (inp) setTimeout(function () { inp.focus(); inp.select(); }, 30);
+  }
+  function closeModal() { modalEl.classList.remove('show'); modalBox.innerHTML = ''; modalBtns = []; modalEnter = null; }
+  function modalOpen() { return modalEl.classList.contains('show'); }
+  function choice(text, buttons) {
+    var html = '<p>' + text + '</p><div class="row" style="margin-top:12px">';
+    buttons.forEach(function (b, i) { html += '<button class="btn ' + (b.cls || '') + '" data-act="mBtn" data-arg="' + i + '">' + esc(b.label) + '</button>'; });
+    openModal(html + '</div>', buttons.map(function (b) { return b.fn; }));
+  }
+  function confirmBox(text, onYes, yesLabel) { choice(text, [{ label: yesLabel || 'YES', cls: 'danger', fn: onYes }, { label: 'NO', cls: 'alt', fn: null }]); }
+  function promptBox(text, def, onOk) {
+    var ok = function () { var v = (document.getElementById('mIn').value || '').trim().slice(0, 14); closeModal(); if (v) onOk(v); };
+    openModal('<p>' + text + '</p><input id="mIn" maxlength="14" value="' + esc(def) + '"><div class="row"><button class="btn go" data-act="mBtn" data-arg="0">OK</button><button class="btn alt" data-act="mBtn" data-arg="1">CANCEL</button></div>',
+      [ok, null], ok);
+  }
+
+  function slotLabel(key) { return key === 'sandbox' ? 'SANDBOX' : 'SLOT ' + (key + 1); }
+  function parseKey(a) { return a === 'sandbox' ? 'sandbox' : parseInt(a, 10); }
+
+  function showSlots() {
+    rerender = showSlots;
+    var html = '<h1 class="logo" data-act="logo">SPARK<br>GAUNTLET</h1><p class="sub">10 bosses. 1 spark. No walking. No mercy.</p>';
+    [0, 1, 2, 'sandbox'].forEach(function (key) {
+      var st = slotState(key);
+      html += '<div class="card"><div class="between"><div><h3>' + slotLabel(key) + (st && st.flags.cheated ? ' <span class="r" title="Cheats used">' + STAR + '</span>' : '') + '</h3>';
+      if (st) html += '<p>' + esc(st.name) + ' &middot; <span class="y">' + ECHO + ' ' + fmt(st.echoes) + '</span></p><p class="muted">Wins ' + st.stats.wins + ' &middot; Best boss ' + st.stats.best + '/10' + (st.run ? ' &middot; <span class="g">Run in progress</span>' : '') + '</p>';
+      else html += '<p class="muted">' + (key === 'sandbox' ? 'Everything unlocked. Start at any boss. No achievements.' : 'Empty') + '</p>';
+      html += '</div><div class="row"><button class="btn go" data-act="slotPlay" data-arg="' + key + '">' + (st ? 'PLAY' : 'NEW') + '</button>';
+      if (st) html += '<button class="btn sm alt" data-act="slotRename" data-arg="' + key + '">RENAME</button><button class="btn sm danger" data-act="slotWipe" data-arg="' + key + '">WIPE</button>';
+      html += '</div></div></div>';
+    });
+    html += '<p class="foot">' + (PLATFORM === 'phone' ? 'Drag to move &middot; FIRE / GUARD &middot; SPELL &middot; SPECIAL' : 'Arrows/WASD move &middot; Z shoot/guard &middot; X spell &middot; C special &middot; Esc pause &middot; M mute &middot; F fullscreen') + '<br>v' + VERSION + ' &middot; ' + PLATFORM + ' version</p>';
+    setScreen('slots', html);
+  }
+  function loadSlot(key) {
+    curKey = key; S = slotState(key);
+    showMenu();
+  }
+
+  function showMenu() {
+    rerender = showMenu;
+    var run = S.run, got = 0;
+    ACHIEVEMENTS.forEach(function (a) { if (S.ach[a.id]) got++; });
+    var html = '<h2>' + esc(S.name) + (S.sandbox ? ' <span class="tag y">SANDBOX</span>' : '') + '</h2>';
+    html += '<p><span class="y">' + ECHO + ' ' + fmt(S.echoes) + ' Echoes</span>' + (S.flags.cheated ? ' <span class="r">' + STAR + ' cheated</span>' : '') + '</p>';
+    if (run) html += '<button class="btn big go" data-act="continueRun">CONTINUE RUN<br><span style="font-size:9px">Boss ' + (run.level + 1) + '/10 &middot; ' + CLASS_BY_ID[run.cls].name + ' LV ' + soulLevel(run.stats) + '</span></button>';
+    html += '<button class="btn big' + (run ? ' alt' : ' go') + '" data-act="newRun">NEW RUN</button>';
+    html += '<button class="btn big" data-act="customize">CUSTOMIZE SPARK</button>';
+    html += '<button class="btn big" data-act="achievements">ACHIEVEMENTS ' + got + '/' + ACHIEVEMENTS.length + '</button>';
+    html += '<button class="btn big" data-act="settings">SETTINGS</button>';
+    html += '<button class="btn big alt" data-act="toSlots">SAVE SLOTS</button>';
+    html += '<p class="foot">Runs ' + S.stats.runs + ' &middot; Wins ' + S.stats.wins + ' &middot; Best boss ' + S.stats.best + '/10 &middot; Grazes ' + fmt(S.stats.grazes) + '</p>';
+    setScreen('menu', html);
+  }
+
+  function gradeStr(scale) {
+    var out = [];
+    for (var k in scale) if (scale.hasOwnProperty(k)) out.push(STAT_BY_ID[k].short + ' <span class="y">' + scale[k] + '</span>');
+    return out.join(' / ');
+  }
+  function statBars(stats) {
+    var h = '';
+    STATS.forEach(function (s) {
+      h += '<div style="font-size:8px;display:flex;justify-content:space-between"><span style="color:' + s.color + '">' + s.short + '</span><span>' + stats[s.id] + '</span></div>' +
+        '<div class="statbar"><i style="width:' + Math.min(100, stats[s.id] / 20 * 100) + '%;background:' + s.color + '"></i></div>';
+    });
+    return h;
+  }
+  function showClassSelect(pre) {
+    rerender = function () { showClassSelect(pre); };
+    var cur = DIFF_BY_ID[S.settings.diff] || DIFF_BY_ID.normal;
+    var html = '<h2>DIFFICULTY</h2><div class="chips">';
+    DIFFICULTIES.forEach(function (df) { html += '<button class="chip' + (df.id === cur.id ? ' on' : '') + '" style="' + (df.id === cur.id ? 'border-color:' + df.color + ';color:' + df.color : '') + '" data-act="setDiff" data-arg="' + df.id + '">' + df.name.toUpperCase() + '</button>'; });
+    html += '</div><p style="color:' + cur.color + ';font-size:9px">' + cur.desc + '</p>';
+    html += '<h2 style="margin-top:18px">CHOOSE YOUR CLASS</h2><p class="muted">Starting stats only. You can put points anywhere later.</p>';
+    if (S.sandbox) html += '<div class="card" style="text-align:center"><p>Start at boss: <span class="y">' + (sbStart + 1) + ' - ' + BOSSES[sbStart].name + '</span></p><div class="row"><button class="btn sm" data-act="sbLevel" data-arg="-1">&lt;</button><button class="btn sm" data-act="sbLevel" data-arg="1">&gt;</button></div><p class="muted">Sandbox runs start with 5,000 Shards.</p></div>';
+    html += '<div class="grid">';
+    CLASSES.forEach(function (c) {
+      var owned = !!S.unlocks.cls[c.id];
+      html += '<div class="card' + (owned ? (pre === c.id ? ' sel' : '') : ' locked') + '"><h3 style="color:' + (owned ? c.color : '#777') + '">' + c.name.toUpperCase() + ' <span class="muted" style="font-size:8px">' + c.role + '</span></h3>';
+      html += statBars(c.stats);
+      html += '<p style="font-size:8px">Weapon: ' + c.weapon.name + ' (' + gradeStr(c.weapon.scale) + ')<br>Spell: ' + c.spell.name + ' (' + gradeStr(c.spell.scale) + ')<br><span class="g">' + c.passive + '</span></p>';
+      if (owned) html += '<button class="btn go" style="width:100%;margin:8px 0 0" data-act="pickClass" data-arg="' + c.id + '">PLAY ' + c.name.toUpperCase() + '</button>';
+      else html += '<button class="btn" style="width:100%;margin:8px 0 0" data-act="unlockClass" data-arg="' + c.id + '"' + (S.echoes < c.unlock ? ' disabled' : '') + '>UNLOCK ' + ECHO + ' ' + c.unlock + '</button>';
+      html += '</div>';
+    });
+    html += '</div><p class="muted" style="margin-top:12px">Grades (S-E) show how much a stat boosts that weapon or spell.</p><button class="btn big alt" data-act="toMenu">BACK</button>';
+    setScreen('class', html);
+  }
+
+  function newRun(clsId) {
+    var cls = CLASS_BY_ID[clsId];
+    S.run = { cls: clsId, stats: copy(cls.stats), bought: 0, relics: [], shards: S.sandbox ? 5000 : 0, level: S.sandbox ? sbStart : 0, hp: 1,
+      livesUsed: 0, time: 0, cleared: S.sandbox ? sbStart : 0, noHits: 0, offer: null, stage: 'preview', tipsDone: false, diff: S.settings.diff || 'normal' };
+    S.run.hp = derive(S.run).maxHp;
+    S.stats.runs++;
+    if (S.stats.runs >= 10) unlockAch('persistent');
+    persist();
+    showPreview();
+  }
+  function patsOf(def) { var o = {}; def.phases.forEach(function (ph) { ph.pats.forEach(function (p) { o[p] = 1; }); }); return Object.keys(o); }
+  function tagList(items) { return items.map(function (t) { return '<span class="tag">' + t + '</span>'; }).join(''); }
+
+  function showPreview() {
+    rerender = showPreview;
+    var run = S.run, def = BOSSES[run.level], d = derive(run), df = DIFF_BY_ID[run.diff];
+    run.stage = 'preview'; persist();
+    var seen = {};
+    for (var i = 0; i < run.level; i++) patsOf(BOSSES[i]).forEach(function (p) { seen[p] = 1; });
+    var mine = patsOf(def), fresh = mine.filter(function (p) { return !seen[p]; });
+    var html = '<h2>BOSS ' + (run.level + 1) + ' / 10 <span class="tag" style="border-color:' + df.color + ';color:' + df.color + '">' + df.name.toUpperCase() + '</span></h2><canvas class="pv" id="pvBoss" width="96" height="96" style="width:144px;height:144px"></canvas>';
+    html += '<h3 style="font-size:14px;color:#fff">' + def.name.toUpperCase() + '</h3><p class="muted">' + def.title + '</p>';
+    html += '<div class="card"><h3>WHAT\'S NEW</h3>';
+    if (run.level === 0) html += '<p class="g">Your first fight! The arena box stretches and shrinks to fit each attack.</p>';
+    if (run.level === df.turnFireFrom) html += '<p class="r">From now on bosses also attack during your turn!</p>';
+    fresh.forEach(function (p) { html += '<p><span class="y">NEW:</span> ' + PATTERN_INFO[p].name + ' - ' + PATTERN_INFO[p].desc + '</p>'; });
+    if (!fresh.length && run.level > 0) html += '<p>No new attacks - just faster and meaner.</p>';
+    if (def.phases.length > 1) html += '<p class="r">This boss has ' + def.phases.length + ' phases!</p>';
+    if (def.combo) html += '<p class="o">Mixes two attacks at once.</p>';
+    if (run.level > 0 && (def.box[0] < BOSSES[run.level - 1].box[0] || def.box[1] < BOSSES[run.level - 1].box[1])) html += '<p class="o">The box is smaller!</p>';
+    html += '<p class="muted">Attacks: ' + mine.map(function (p) { return PATTERN_INFO[p].name; }).join(', ') + '<br>Par time: ' + fmtTime(def.par) + ' (beat it for +20% Shards)</p></div>';
+    html += '<div class="card"><h3>YOUR SPARK</h3><p>' + CLASS_BY_ID[run.cls].name + ' &middot; LV ' + soulLevel(run.stats) + ' &middot; HP <span class="y">' + Math.ceil(run.hp) + '/' + d.maxHp + '</span> &middot; Shards <span class="y">' + fmt(run.shards) + '</span></p>';
+    var perkNames = PERKS.filter(function (p) { return d.perks[p.id]; }).map(function (p) { return p.name; });
+    if (perkNames.length) html += '<p>Perks: ' + tagList(perkNames) + '</p>';
+    if (run.relics.length) html += '<p>Relics: ' + tagList(run.relics.map(function (r) { return RELIC_BY_ID[r].name; })) + '</p>';
+    html += '</div>';
+    html += '<button class="btn big go" data-act="fight">FIGHT!</button>';
+    if (run.shards >= pointCost(run.bought) || run.level > 0) html += '<button class="btn big" data-act="toShop">LEVEL UP (' + fmt(run.shards) + ' SHARDS)</button>';
+    html += '<button class="btn big alt" data-act="toMenu">SAVE &amp; QUIT</button>';
+    setScreen('preview', html);
+    var c = document.getElementById('pvBoss');
+    if (c) { var x = c.getContext('2d'); x.imageSmoothingEnabled = false; x.drawImage(bossSprite(def, false), 0, 0); }
+  }
+
+  function makeOffer(run) {
+    var pool = RELICS.filter(function (r) { return run.relics.indexOf(r.id) < 0; }).map(function (r) { return r.id; });
+    return shuffle(pool).slice(0, 3);
+  }
+  function showRewards() {
+    rerender = showRewards;
+    var run = S.run, s = run.lastSummary || { shards: 0, time: 0, par: 0, boss: '?' };
+    var html = '<h2>VICTORY!</h2><p>' + esc(s.boss) + ' defeated in ' + fmtTime(s.time) + '</p><div class="card">';
+    html += '<p>Base reward: ' + s.base + '</p><p>Luck and bonuses applied</p>';
+    if (s.noHit) html += '<p class="g">No-hit bonus x1.5!</p>';
+    if (s.underPar) html += '<p class="g">Under par (' + fmtTime(s.par) + ') x1.2!</p>'; else html += '<p class="muted">Par was ' + fmtTime(s.par) + '</p>';
+    html += '<p style="font-size:14px;margin-top:8px">+<span class="y">' + fmt(s.shards) + '</span> Shards</p>';
+    if (s.interest) html += '<p class="y">Savings bonus: +' + s.interest + ' Shards (you saved last time)</p>';
+    if (s.healed) html += '<p class="g">Rested: +' + s.healed + ' HP</p>';
+    html += '</div><button class="btn big go" data-act="toRelic">CHOOSE A RELIC</button>';
+    setScreen('rewards', html);
+  }
+  function showRelicPick() {
+    rerender = showRelicPick;
+    var run = S.run;
+    run.stage = 'relic';
+    if (!run.offer || !run.offer.length) run.offer = makeOffer(run);
+    persist();
+    var html = '<h2>PICK A RELIC</h2><p class="muted">Relics last for the whole run.</p><div class="grid">';
+    run.offer.forEach(function (id) {
+      var r = RELIC_BY_ID[id];
+      html += '<div class="card relic" data-act="relic" data-arg="' + id + '"><h3>' + r.name + '</h3><p>' + r.desc + '</p></div>';
+    });
+    html += '</div><button class="btn big alt" data-act="skipRelic">SKIP (+' + relicSkipBonus(run.level) + ' SHARDS)</button>';
+    setScreen('relic', html);
+  }
+
+  function pendCount() { var n = 0; for (var k in SHOP.pend) if (SHOP.pend.hasOwnProperty(k)) n += SHOP.pend[k]; return n; }
+  function pendCost() { var n = pendCount(), b = S.run.bought, c = 0; for (var i = 0; i < n; i++) c += pointCost(b + i); return c; }
+  function pendStats() { var o = copy(S.run.stats); for (var k in SHOP.pend) if (SHOP.pend.hasOwnProperty(k)) o[k] += SHOP.pend[k]; return o; }
+  function cmp(label, a, b, fmtFn) {
+    var fa = fmtFn(a), fb = fmtFn(b);
+    return '<div class="between" style="font-size:9px;padding:3px 0"><span class="muted">' + label + '</span><span>' + fa + (fa !== fb ? ' <span class="pend">&rarr; ' + fb + '</span>' : '') + '</span></div>';
+  }
+  function showShop(fresh) {
+    if (fresh) SHOP.pend = {};
+    rerender = function () { showShop(false); };
+    var run = S.run;
+    run.stage = 'shop';
+    var ps = pendStats(), cost = pendCost(), avail = run.shards - cost, next = pointCost(run.bought + pendCount());
+    var d0 = derive(run), d1 = derive(run, ps);
+    var html = '<h2>LEVEL UP</h2><p>Shards: <span class="y">' + fmt(avail) + '</span> &middot; Spark LV ' + soulLevel(run.stats) + (pendCount() ? ' <span class="pend">&rarr; ' + soulLevel(ps) + '</span>' : '') + '</p>';
+    html += '<p class="muted">Next point costs ' + next + ' Shards</p><div class="card"><table class="stats">';
+    STATS.forEach(function (s) {
+      var v = ps[s.id], p = SHOP.pend[s.id] || 0;
+      html += '<tr><td><span style="color:' + s.color + '">' + s.name.toUpperCase() + '</span><span class="desc">' + s.desc + (v >= SOFTCAP2 ? ' (soft cap 2)' : v >= SOFTCAP1 ? ' (soft cap)' : '') + '</span></td>';
+      html += '<td class="num">' + run.stats[s.id] + (p ? ' <span class="pend">+' + p + '</span>' : '') + '</td>';
+      html += '<td class="num"><button class="btn sm alt" data-act="statMinus" data-arg="' + s.id + '"' + (p ? '' : ' disabled') + '>-</button><button class="btn sm" data-act="statPlus" data-arg="' + s.id + '"' + (avail >= next ? '' : ' disabled') + '>+</button></td></tr>';
+    });
+    html += '</table><p class="muted" style="font-size:8px">Points past 15 give half value, past 25 a fifth. Spreading points out makes you stronger.</p></div>';
+    html += '<div class="card"><h3>WHAT YOU GET</h3>';
+    html += cmp('Max HP', d0.maxHp, d1.maxHp, function (v) { return String(v); });
+    html += cmp('Shot damage', d0.shotDmg, d1.shotDmg, function (v) { return v.toFixed(1); });
+    html += cmp('Fire rate', d0.fireRate, d1.fireRate, function (v) { return v.toFixed(2) + '/s'; });
+    html += cmp('Spell damage', d0.spellDmg, d1.spellDmg, function (v) { return v.toFixed(0); });
+    html += cmp('Damage taken', d0.dr, d1.dr, function (v) { return '-' + Math.round(v * 100) + '%'; });
+    html += cmp('Crit chance', d0.crit, d1.crit, function (v) { return Math.round(v * 100) + '%'; });
+    html += cmp('Move speed', d0.speed, d1.speed, function (v) { return String(Math.round(v)); });
+    html += cmp('Mana', d0.manaMax, d1.manaMax, function (v) { return String(v); });
+    html += cmp('Shard bonus', d0.shardMult, d1.shardMult, function (v) { return 'x' + v.toFixed(2); });
+    html += '</div><div class="card"><h3>COMBO PERKS (BOTH STATS ' + PERK_NEED + '+)</h3>';
+    PERKS.forEach(function (p) {
+      var on = d1.perks[p.id], was = d0.perks[p.id];
+      html += '<p style="font-size:9px">' + (on ? '<span class="g">&#10003; ' : '<span class="muted">') + p.name + (on && !was ? ' (NEW!)' : '') + '</span> <span class="muted">[' + STAT_BY_ID[p.need[0]].short + ' ' + ps[p.need[0]] + '/' + PERK_NEED + ' + ' + STAT_BY_ID[p.need[1]].short + ' ' + ps[p.need[1]] + '/' + PERK_NEED + ']</span><br><span style="font-size:8px">' + p.desc + '</span></p>';
+    });
+    html += '</div>';
+    if (run.spentThisShop || pendCount()) html += '<p class="muted" style="font-size:9px">You spent Shards here, so no savings bonus after the next boss.</p>';
+    else html += '<div class="card"><h3>SAVINGS BONUS</h3><p style="font-size:9px">Spend nothing here and you earn <span class="y">+' + interestFor(avail, run.level + 1) + ' Shards</span> after the next boss (15% of what you hold, max ' + interestCap(run.level + 1) + ').</p></div>';
+    var hc = healCost(run.level), full = run.hp >= d0.maxHp;
+    html += '<button class="btn" data-act="healBuy"' + (full || avail < hc ? ' disabled' : '') + '>FULL HEAL (' + hc + ') &middot; HP ' + Math.ceil(run.hp) + '/' + d0.maxHp + '</button>';
+    html += '<button class="btn go" data-act="confirmStats"' + (pendCount() ? '' : ' disabled') + '>CONFIRM</button>';
+    html += '<button class="btn big go" data-act="toPreview">NEXT BOSS &rarr;</button>';
+    setScreen('shop', html);
+  }
+  function applyPending() {
+    var run = S.run, n = pendCount();
+    if (!n) return;
+    run.spentThisShop = true;
+    var before = derive(run), cost = pendCost();
+    run.stats = pendStats(); run.bought += n; run.shards -= cost; SHOP.pend = {};
+    var after = derive(run);
+    run.hp = Math.min(after.maxHp, run.hp + Math.max(0, after.maxHp - before.maxHp));
+    sfx('levelup'); pop('LEVEL UP!  LV ' + soulLevel(run.stats));
+    PERKS.forEach(function (p) { if (after.perks[p.id] && !before.perks[p.id]) toast('<b>NEW PERK</b><br>' + p.name + '<br>' + p.desc); });
+    var all12 = true; STATS.forEach(function (s) { if (run.stats[s.id] < 12) all12 = false; });
+    if (all12) unlockAch('balanced');
+    if (run.stats.grd >= 30) unlockAch('tank');
+    if (perkCount(run.stats) >= 3) unlockAch('combo3');
+    persist();
+  }
+
+  function showEnd(info) {
+    rerender = null;
+    var c = CLASS_BY_ID[info.cls];
+    var html = info.won ? '<h1 class="logo" style="font-size:26px">YOU CONQUERED<br>THE GAUNTLET!</h1>' : '<h2 class="r" style="font-size:20px">YOUR SPARK FADED</h2><p>Defeated by ' + esc(info.boss) + '</p>';
+    html += '<div class="card"><p>Class: <span style="color:' + c.color + '">' + c.name + '</span> &middot; LV ' + info.lv + '</p><p>Bosses beaten: <span class="y">' + info.cleared + '/10</span> &middot; <span style="color:' + info.diff.color + '">' + info.diff.name + '</span></p><p>Run time: ' + fmtTime(info.time) + ' &middot; Relics: ' + info.relics + '</p>';
+    html += '<p style="font-size:13px;margin-top:8px">+<span class="y">' + ECHO + ' ' + info.echoes + '</span> Echoes</p><p class="muted">Spend Echoes on new classes and spark cosmetics.</p></div>';
+    html += '<button class="btn big go" data-act="playAgain" data-arg="' + info.cls + '">PLAY AGAIN</button><button class="btn big" data-act="customize">CUSTOMIZE SPARK</button><button class="btn big alt" data-act="toMenu">MENU</button>';
+    setScreen(info.won ? 'victory' : 'gameover', html);
+  }
+
+  var pvTrail = [], pvT = 0, pvShots = [];
+  function showCustomize() {
+    rerender = showCustomize;
+    var html = '<h2>CUSTOMIZE SPARK</h2><p class="y">' + ECHO + ' ' + fmt(S.echoes) + ' Echoes</p><canvas class="pv" id="pvSpark" width="200" height="120" style="width:300px;max-width:90%;height:auto"></canvas><p class="muted" style="font-size:8px">Looks only - no stat changes.</p>';
+    COSMETIC_CATS.forEach(function (cat) {
+      html += '<h3>' + cat[1].toUpperCase() + '</h3><div class="chips">';
+      COSMETICS[cat[0]].forEach(function (it) {
+        var owned = !!S.unlocks[cat[0]][it.id], on = S.skin[cat[0]] === it.id;
+        var sw = cat[0] === 'color' ? '<span class="sw" style="background:' + (it.hex === 'rainbow' ? 'linear-gradient(90deg,red,orange,yellow,lime,cyan,violet)' : it.hex) + '"></span>' : '';
+        if (owned) html += '<button class="chip' + (on ? ' on' : '') + '" data-act="equip" data-arg="' + cat[0] + ':' + it.id + '">' + sw + it.name + '</button>';
+        else if (it.cost > 0) html += '<button class="chip lock" data-act="buyCos" data-arg="' + cat[0] + ':' + it.id + '">' + sw + it.name + ' ' + ECHO + it.cost + '</button>';
+        else html += '<button class="chip lock" data-act="howCos" data-arg="' + cat[0] + ':' + it.id + '">' + sw + it.name + ' ?</button>';
+      });
+      html += '</div>';
+    });
+    html += '<button class="btn big alt" data-act="toMenu">BACK</button>';
+    setScreen('custom', html);
+  }
+  function drawPreview(dt) {
+    var c = document.getElementById('pvSpark'); if (!c) return;
+    var x = c.getContext('2d'); x.imageSmoothingEnabled = false;
+    pvT += dt;
+    x.fillStyle = '#000'; x.fillRect(0, 0, c.width, c.height);
+    var px = 100 + Math.cos(pvT * 1.6) * 50, py = 70 + Math.sin(pvT * 3.2) * 18;
+    pvTrail.push({ x: px, y: py }); if (pvTrail.length > 10) pvTrail.shift();
+    if (Math.random() < dt * 5) pvShots.push({ x: px, y: py - 10 });
+    var col = colorOf(S.skin, pvT, 0);
+    for (var i = pvShots.length - 1; i >= 0; i--) {
+      var s = pvShots[i]; s.y -= 200 * dt;
+      if (s.y < -10) { pvShots.splice(i, 1); continue; }
+      var sp = shotSprite(S.skin.shot, col); x.drawImage(sp, Math.round(s.x - sp.width / 2), Math.round(s.y));
+    }
+    drawTrail(x, pvTrail, S.skin, pvT, 2);
+    drawSoul(x, px, py, S.skin, pvT, 1, 3);
+  }
+
+  function showAchievements() {
+    rerender = showAchievements;
+    var got = 0; ACHIEVEMENTS.forEach(function (a) { if (S.ach[a.id]) got++; });
+    var html = '<h2>ACHIEVEMENTS</h2><p class="y">' + got + ' / ' + ACHIEVEMENTS.length + '</p>' + (S.sandbox ? '<p class="muted">Achievements are off in Sandbox.</p>' : '') + '<div class="grid">';
+    ACHIEVEMENTS.forEach(function (a) {
+      var has = !!S.ach[a.id], hide = a.secret && !has;
+      html += '<div class="card ach' + (has ? ' got' : '') + '"><h3 style="font-size:10px">' + (hide ? '???' : a.name) + '</h3><p style="font-size:8px">' + (hide ? 'Secret achievement' : a.desc) + '<br><span class="y">+' + a.reward + ' ' + ECHO + '</span>' + (a.unlock && !hide ? ' &middot; unlocks a cosmetic' : '') + '</p></div>';
+    });
+    html += '</div><button class="btn big alt" data-act="toMenu">BACK</button>';
+    setScreen('ach', html);
+  }
+
+  function showSettings() {
+    rerender = showSettings;
+    var html = '<h2>SETTINGS</h2>';
+    html += '<button class="btn big" data-act="mute">SOUND: ' + (muted ? 'OFF' : 'ON') + '</button>';
+    html += '<button class="btn big" data-act="music">MUSIC: ' + (musicOn ? 'ON' : 'OFF') + '</button>';
+    html += '<button class="btn big" data-act="toggleTips">FIRST-FIGHT TIPS: ' + (S.settings.tips ? 'ON' : 'OFF') + '</button>';
+    if (PLATFORM === 'desktop') html += '<button class="btn big" data-act="fullscreen">FULLSCREEN (F)</button>';
+    html += '<h3>CHEAT CODE</h3><div class="row"><input id="cheatIn" maxlength="14" style="font:inherit;font-size:11px;padding:10px;background:#000;color:#fff;border:2px solid #aaa;max-width:220px;-webkit-user-select:text;user-select:text" placeholder="TYPE CODE"><button class="btn" data-act="cheatEnter">ENTER</button></div><p class="muted" style="font-size:8px">Some codes mark your save with a ' + STAR + '. Looks-only codes do not.</p>';
+    html += '<h3>SAVE</h3><div class="row"><button class="btn alt" data-act="renameCur">RENAME</button><button class="btn danger" data-act="resetCur">RESET PROGRESS</button><button class="btn danger" data-act="wipeCur">WIPE SLOT</button></div>';
+    html += '<h3>CONTROLS</h3><p style="font-size:9px">' + (PLATFORM === 'phone' ? 'Drag anywhere on the game to move.<br>FIRE: shoot on your turn, GUARD on the boss turn.<br>SPELL: costs mana. SPECIAL: when the meter is full.' :
+      'Arrows / WASD: move<br>Z / Space: shoot (your turn) or guard (boss turn)<br>X: spell &middot; C / Shift: special<br>Esc / P: pause &middot; M: mute &middot; F: fullscreen') + '</p>';
+    html += '<button class="btn big alt" data-act="toMenu">BACK</button>';
+    setScreen('settings', html);
+    var inp = document.getElementById('cheatIn');
+    if (inp) inp.addEventListener('keydown', function (e) { if (e.code === 'Enter') { e.preventDefault(); ACTIONS.cheatEnter(); } });
+  }
+
+  function continueRun() {
+    var st = S.run.stage;
+    if (st === 'rewards' && S.run.lastSummary) showRewards();
+    else if (st === 'relic' || st === 'rewards') showRelicPick();
+    else if (st === 'shop') showShop(true);
+    else showPreview();
+  }
+
+  function togglePause(auto) {
+    if (GAME.screen !== 'fight' || !F) return;
+    if (GAME.paused) { GAME.paused = false; uiEl.classList.remove('show'); uiEl.innerHTML = ''; clearInput(); return; }
+    GAME.paused = true; clearInput();
+    if (!auto) { S.stats.pauses++; if (S.stats.pauses >= 20) unlockAch('snack'); }
+    uiEl.innerHTML = '<div class="panel" style="margin-top:12vh"><h2>PAUSED</h2><p class="muted">' + F.def.name + ' &middot; ' + fmtTime(F.time) + '</p>' +
+      '<button class="btn big go" data-act="resume">RESUME</button><button class="btn big" data-act="mute">SOUND: ' + (muted ? 'OFF' : 'ON') + '</button><button class="btn big" data-act="music">MUSIC: ' + (musicOn ? 'ON' : 'OFF') + '</button>' +
+      (PLATFORM === 'desktop' ? '<button class="btn big" data-act="fullscreen">FULLSCREEN</button>' : '') +
+      '<button class="btn big danger" data-act="quitFight">QUIT TO MENU</button><p class="muted" style="font-size:8px">Quitting restarts this boss next time.</p></div>';
+    uiEl.classList.add('show');
+  }
+
+  function fightWon(f) {
+    var run = S.run, d = f.d;
+    var noHit = f.hits === 0, underPar = f.time <= f.def.par;
+    var base = 40 + 15 * (f.idx + 1);
+    var shards = Math.round(base * d.shardMult * (noHit ? 1.5 : 1) * (underPar ? 1.2 : 1));
+    var interest = run.bank > 0 ? interestFor(run.bank, f.idx + 1) : 0;
+    run.shards += shards + interest; run.bank = 0; run.spentThisShop = false;
+    run.hp = Math.max(1, f.p.hp); run.time += f.time; run.cleared = f.idx + 1;
+    if (noHit) run.noHits++;
+    run.tipsDone = true;
+    S.stats.best = Math.max(S.stats.best, f.idx + 1);
+    unlockAch('first_blood');
+    if (f.idx >= 4) unlockAch('halfway');
+    if (noHit) unlockAch('untouchable');
+    if (f.idx === 9 && noHit) unlockAch('flawless');
+    if (f.time < 35) unlockAch('speedy');
+    if (f.p.hp <= 3) unlockAch('clutch');
+    if (run.shards >= 500) unlockAch('rich');
+    var summary = { shards: shards, noHit: noHit, underPar: underPar, time: f.time, par: f.def.par, base: base, boss: f.def.name, healed: 0, interest: interest };
+    F = null; musicStop();
+    if (f.idx === 9) { endRun(true, summary); return; }
+    var mh = derive(run).maxHp;
+    var healed = Math.round(Math.min(mh, run.hp + mh * d.healAfter * f.df.heal) - run.hp);
+    run.hp += healed; summary.healed = healed;
+    run.level++; run.offer = makeOffer(run); run.stage = 'rewards'; run.lastSummary = summary;
+    persist(); sfx('levelup');
+    showRewards();
+  }
+  function fightLost() {
+    var f = F; F = null; musicStop();
+    S.run.time += f.time; S.stats.deaths++;
+    if (f.idx === 0) unlockAch('skill_issue');
+    endRun(false, { boss: f.def.name });
+  }
+  function endRun(won, summary) {
+    var run = S.run;
+    var df = DIFF_BY_ID[run.diff] || DIFF_BY_ID.normal;
+    var echoes = S.sandbox ? 0 : Math.round((run.cleared * 6 + run.noHits * 3 + (won ? 60 : 0)) * df.echo);
+    S.echoes += echoes;
+    if (won) {
+      S.stats.wins++; sfx('win');
+      unlockAch('champion'); unlockAch('win_' + run.cls);
+      if (run.stats.vig <= 8) unlockAch('glass');
+      if (df.id === 'hard' || df.id === 'death') unlockAch('win_hard');
+      if (df.id === 'death') unlockAch('win_death');
+    }
+    var info = { won: won, echoes: echoes, cls: run.cls, cleared: run.cleared, time: run.time, relics: run.relics.length, lv: soulLevel(run.stats), boss: summary.boss, diff: df };
+    S.run = null; persist();
+    showEnd(info);
+  }
+
+  /* ===================== 11. ACHIEVEMENTS & CHEATS ===================== */
+  function cosName(cat, id) { var n = id; COSMETICS[cat].forEach(function (it) { if (it.id === id) n = it.name; }); return n; }
+  function unlockAch(id) {
+    if (!S || S.sandbox || S.ach[id]) return;
+    var a = ACH_BY_ID[id]; if (!a) return;
+    S.ach[id] = Date.now(); S.echoes += a.reward || 0;
+    var extra = '';
+    if (a.unlock) { S.unlocks[a.unlock[0]][a.unlock[1]] = 1; extra = '<br>Unlocked: ' + cosName(a.unlock[0], a.unlock[1]) + ' ' + a.unlock[0]; }
+    toast('<b>ACHIEVEMENT!</b><br>' + esc(a.name) + '<br>+' + a.reward + ' ' + ECHO + ' Echoes' + extra);
+    sfx('ach');
+    persist();
+  }
+  function runCheat(code) {
+    code = String(code || '').toUpperCase().replace(/[^A-Z]/g, '');
+    for (var i = 0; i < CHEATS.length; i++) {
+      var c = CHEATS[i];
+      if (c.code === code) {
+        var msg = c.run();
+        if (c.flag && !S.sandbox) S.flags.cheated = true;
+        persist(); sfx('buy');
+        toast('<b>CODE ACCEPTED</b><br>' + esc(msg));
+        if (rerender && GAME.screen !== 'fight') rerender();
+        return true;
+      }
+    }
+    return false;
+  }
+  function checkDrip() { var k = S.skin; if (k.shape !== COSMETICS.shape[0].id && k.color !== COSMETICS.color[0].id && k.trail !== 'none' && k.hat !== 'none') unlockAch('drip'); }
+
+  var ACTIONS = {
+    logo: function () { ACTIONS._logo = (ACTIONS._logo || 0) + 1; if (ACTIONS._logo % 7 === 0) { spinUntil = menuT + 3; sfx('honk'); } },
+    slotPlay: function (a) {
+      var key = parseKey(a);
+      if (slotState(key)) { loadSlot(key); return; }
+      if (key === 'sandbox') { setSlot(key, normalizeState(defaultState('Sandbox', true), true)); persist(); loadSlot(key); return; }
+      promptBox('Name your spark:', 'Spark ' + (key + 1), function (name) { setSlot(key, normalizeState(defaultState(name, false), false)); curKey = key; S = slotState(key); persist(); showMenu(); });
+    },
+    slotRename: function (a) {
+      var key = parseKey(a), st = slotState(key);
+      promptBox('Rename ' + slotLabel(key) + ':', st.name, function (name) { st.name = name; lsSet(SAVE_KEY, JSON.stringify(store)); showSlots(); });
+    },
+    slotWipe: function (a) {
+      var key = parseKey(a);
+      confirmBox('Wipe ' + slotLabel(key) + '? This deletes everything in it and cannot be undone.', function () { setSlot(key, null); lsSet(SAVE_KEY, JSON.stringify(store)); showSlots(); }, 'WIPE');
+    },
+    toSlots: function () { persist(); S = null; curKey = null; showSlots(); },
+    toMenu: function () { persist(); showMenu(); },
+    continueRun: function () { continueRun(); },
+    newRun: function () {
+      if (S.run) confirmBox('Abandon your current run? You will not get Echoes for it.', function () { S.run = null; persist(); showClassSelect(); }, 'ABANDON');
+      else showClassSelect();
+    },
+    playAgain: function (a) { showClassSelect(a); },
+    sbLevel: function (a) { sbStart = clamp(sbStart + parseInt(a, 10), 0, 9); rerender(); },
+    unlockClass: function (id) {
+      var c = CLASS_BY_ID[id]; if (debounced()) return;
+      if (S.echoes < c.unlock) { sfx('deny'); return; }
+      S.echoes -= c.unlock; S.unlocks.cls[id] = 1; persist(); sfx('buy'); toast('<b>UNLOCKED</b><br>' + c.name); rerender();
+    },
+    pickClass: function (id) {
+      if (S.settings.tips === null && !S.sandbox) {
+        choice('Want quick tips during your first fight?', [
+          { label: 'YES PLEASE', cls: 'go', fn: function () { S.settings.tips = true; newRun(id); } },
+          { label: 'NO THANKS', cls: 'alt', fn: function () { S.settings.tips = false; newRun(id); } }]);
+      } else newRun(id);
+    },
+    fight: function () { persist(); startFight(); },
+    toShop: function () { showShop(true); },
+    toRelic: function () { showRelicPick(); },
+    relic: function (id) {
+      var run = S.run; if (debounced() || !run.offer || run.offer.indexOf(id) < 0) return;
+      run.relics.push(id); run.offer = null; run.stage = 'shop';
+      var d = derive(run); run.hp = Math.min(run.hp, d.maxHp);
+      if (run.relics.length >= 6) unlockAch('hoarder');
+      persist(); sfx('buy'); showShop(true);
+    },
+    skipRelic: function () { var run = S.run; if (debounced()) return; run.shards += relicSkipBonus(run.level); run.offer = null; run.stage = 'shop'; persist(); showShop(true); },
+    statPlus: function (id) {
+      if (debounced()) return;
+      var run = S.run, next = pointCost(run.bought + pendCount());
+      if (run.shards - pendCost() < next) { sfx('deny'); return; }
+      SHOP.pend[id] = (SHOP.pend[id] || 0) + 1; sfx('buy'); rerender();
+    },
+    statMinus: function (id) { if (debounced()) return; if (SHOP.pend[id]) { SHOP.pend[id]--; if (!SHOP.pend[id]) delete SHOP.pend[id]; } rerender(); },
+    confirmStats: function () { if (debounced()) return; applyPending(); rerender(); },
+    healBuy: function () {
+      if (debounced()) return;
+      var run = S.run, c = healCost(run.level), d = derive(run);
+      if (run.shards - pendCost() < c || run.hp >= d.maxHp) { sfx('deny'); return; }
+      run.shards -= c; run.hp = d.maxHp; run.spentThisShop = true; persist(); sfx('levelup'); rerender();
+    },
+    toPreview: function () { applyPending(); showPreview(); },
+    customize: function () { if (!S) return; showCustomize(); },
+    equip: function (a) { var p = a.split(':'); if (!S.unlocks[p[0]][p[1]]) return; S.skin[p[0]] = p[1]; checkDrip(); persist(); rerender(); },
+    buyCos: function (a) {
+      var p = a.split(':'), it = null; if (debounced()) return;
+      COSMETICS[p[0]].forEach(function (x) { if (x.id === p[1]) it = x; });
+      if (!it || it.cost <= 0) return;
+      if (S.echoes < it.cost) { sfx('deny'); toast('Need ' + it.cost + ' ' + ECHO + ' Echoes. Beat bosses to earn more!'); return; }
+      S.echoes -= it.cost; S.unlocks[p[0]][p[1]] = 1; S.skin[p[0]] = p[1]; checkDrip(); persist(); sfx('buy'); rerender();
+    },
+    howCos: function (a) { var p = a.split(':'); COSMETICS[p[0]].forEach(function (x) { if (x.id === p[1]) toast('<b>' + x.name + '</b><br>' + esc(x.how || 'Secret!')); }); },
+    achievements: function () { showAchievements(); },
+    settings: function () { showSettings(); },
+    music: function () { setMusic(!musicOn); if (GAME.screen === 'fight') { togglePause(true); togglePause(true); } else if (rerender) rerender(); },
+    setDiff: function (id) { if (!DIFF_BY_ID[id]) return; S.settings.diff = id; persist(); rerender(); },
+    mute: function () { setMuted(!muted); if (GAME.screen === 'fight') { togglePause(true); togglePause(true); } else if (rerender) rerender(); },
+    toggleTips: function () { S.settings.tips = !S.settings.tips; persist(); rerender(); },
+    fullscreen: function () { toggleFullscreen(); },
+    cheatEnter: function () {
+      var inp = document.getElementById('cheatIn'); if (!inp) return;
+      var ok = runCheat(inp.value); if (!ok) { sfx('deny'); toast('Nothing happened...'); }
+      inp.value = '';
+    },
+    renameCur: function () { promptBox('Rename your spark:', S.name, function (n) { S.name = n; persist(); showSettings(); }); },
+    resetCur: function () {
+      confirmBox('Reset all progress in this slot? Your name stays, everything else goes.', function () {
+        var n = S.name; S = normalizeState(defaultState(n, S.sandbox), S.sandbox); setSlot(curKey, S); persist(); showMenu();
+      }, 'RESET');
+    },
+    wipeCur: function () { confirmBox('Wipe this whole slot? Cannot be undone.', function () { setSlot(curKey, null); S = null; lsSet(SAVE_KEY, JSON.stringify(store)); curKey = null; showSlots(); }, 'WIPE'); },
+    resume: function () { togglePause(); },
+    quitFight: function () {
+      if (F) S.run.livesUsed = F.livesAtStart;
+      F = null; GAME.paused = false; musicStop(); persist(); showMenu();
+    }
+  };
+  function handleClick(e) {
+    var el = e.target.closest ? e.target.closest('[data-act]') : null;
+    if (!el || el.disabled) return;
+    initAudio();
+    var act = el.getAttribute('data-act'), arg = el.getAttribute('data-arg');
+    if (act === 'mBtn') {
+      var fn = modalBtns[parseInt(arg, 10)];
+      sfx('click');
+      // Prompt OK reads the input first, then closes itself.
+      if (fn && modalBox.querySelector('#mIn')) { fn(); return; }
+      closeModal();
+      if (fn) fn();
+      return;
+    }
+    if (ACTIONS[act]) { sfx('click'); ACTIONS[act](arg, el); }
+  }
+  uiEl.addEventListener('click', handleClick);
+  modalEl.addEventListener('click', function (e) { if (e.target === modalEl) { closeModal(); return; } handleClick(e); });
+
+  /* ===================== 12. MAIN LOOP & BOOT ===================== */
+  function toggleFullscreen() {
+    var d = document, el = d.documentElement;
+    try {
+      if (!(d.fullscreenElement || d.webkitFullscreenElement)) {
+        var r = (el.requestFullscreen || el.webkitRequestFullscreen).call(el);
+        if (r && r.catch) r.catch(function () {});
+      } else (d.exitFullscreen || d.webkitExitFullscreen).call(d);
+    } catch (e) {}
+  }
+  function fit() {
+    var r = stageEl.getBoundingClientRect();
+    var sc = Math.min(r.width / W, r.height / H);
+    if (PLATFORM === 'desktop' && sc >= 2) sc = Math.floor(sc * 4) / 4;
+    sc = Math.max(0.3, sc);
+    cv.style.width = Math.floor(W * sc) + 'px'; cv.style.height = Math.floor(H * sc) + 'px';
+  }
+  function canvasScale() { return cv.getBoundingClientRect().width / W || 1; }
+  var touchState = '';
+  function syncTouch() {
+    if (!F) return;
+    var guard = F.state === 'boss', ready = F.p.meter >= 100, key = guard + '|' + ready;
+    if (key === touchState) return;
+    touchState = key;
+    tFire.textContent = guard ? 'GUARD' : 'FIRE';
+    tFire.classList.toggle('guard', guard);
+    tSpecial.classList.toggle('ready', ready);
+  }
+
+  var lastTs = 0;
+  function frame(ts) {
+    var dt = lastTs ? Math.min(0.05, (ts - lastTs) / 1000) : 0.016;
+    lastTs = ts;
+    try {
+      if (GAME.screen === 'fight' && F) {
+        if (!GAME.paused) updateFight(dt);
+        if (F) drawFight(); else drawMenuBg(dt);
+        if (PLATFORM === 'phone') syncTouch();
+      } else drawMenuBg(dt);
+      if (GAME.screen === 'custom') drawPreview(dt);
+      musicTick(GAME.paused || GAME.screen !== 'fight');
+    } catch (err) { if (window.console) console.error(err); }
+    requestAnimationFrame(frame);
+  }
+
+  document.getElementById('btnMute').addEventListener('click', function () { initAudio(); setMuted(!muted); if (rerender && (GAME.screen === 'settings')) rerender(); });
+  document.getElementById('btnFull').addEventListener('click', function () { toggleFullscreen(); });
+  pauseBtn.addEventListener('click', function () { togglePause(); });
+  window.addEventListener('resize', fit);
+  document.addEventListener('fullscreenchange', fit);
+  document.addEventListener('visibilitychange', function () { if (document.hidden && GAME.screen === 'fight' && F && !GAME.paused) togglePause(true); });
+  if (document.fonts && document.fonts.load) { try { document.fonts.load('8px "Press Start 2P"'); } catch (e) {} }
+
+  // Remember lives at fight start so quitting mid-fight is a clean restart.
+  var _startFight = startFight;
+  startFight = function () { _startFight(); if (F) F.livesAtStart = S.run.livesUsed; };
+
+  cv.width = W; cv.height = H; ctx.imageSmoothingEnabled = false;
+  loadStore();
+  setMuted(muted);
+  showSlots();
+  requestAnimationFrame(frame);
+
+  // Small hook for automated testing only.
+  window.__sparkGauntlet = {
+    state: function () { return S; }, fight: function () { return F; }, screen: function () { return GAME.screen; },
+    act: function (name, arg) { ACTIONS[name](arg); }, killBoss: function () { if (F) { F.bossHp = 1; dealBoss(5, false, CX, 100); } },
+    derive: derive, bosses: BOSSES, classes: CLASSES
+  };
+})();
+</script>
+</body>
+</html>
